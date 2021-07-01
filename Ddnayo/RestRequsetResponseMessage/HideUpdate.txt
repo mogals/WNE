@@ -1,0 +1,78 @@
+﻿POST
+	https://partner.ddnayo.com/pms-api/reservations/hide-update
+상태200
+OK
+버전HTTP/2
+전송됨508 B (60 B 크기)
+리퍼러 정책strict-origin-when-cross-origin
+
+	
+cache-control
+	no-cache, no-store, max-age=0, must-revalidate
+content-encoding
+	gzip
+content-length
+	73
+content-type
+	application/json;charset=UTF-8
+date
+	Mon, 14 Jun 2021 07:26:05 GMT
+expires
+	0
+pragma
+	no-cache
+server
+	nginx
+strict-transport-security
+	max-age=31536000
+vary
+	Accept-Encoding
+x-content-type-options
+	nosniff
+X-Firefox-Spdy
+	h2
+x-frame-options
+	SAMEORIGIN
+x-xss-protection
+	1; mode=block
+	
+Accept
+	application/json, text/plain, */*
+Accept-Encoding
+	gzip, deflate, br
+Accept-Language
+	ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3
+Connection
+	keep-alive
+Content-Length
+	10
+Content-Type
+	application/json;charset=utf-8
+Cookie
+	_savedId=hs%25EB%25B9%258C; _doNotDisplayEventCard6850=TRUE; SESSION=ODFlNzk5MzctYTU1My00NjhkLTlkYzItOWFiMmUxMDhhZGEz; ak_bmsc=06056D893EE2399ED0E2E4C87A99771DAFCF0E3DBC05000087FFC6606E8B2B7C~plZIHn2NqvdYYuTTnhO07S1QzN3WTH1Y4Tj1MeyqZHZ1DKiXJ3q7XcuTeSqDEzzvBK+BDcsJPfWqUYxKOdTL/Lr6J/dBpfE5yGCtwPGZHWEY25GpBAjR9cEGuabD1qVWLXxDExmxVgEchdHNET/vcTYOIk8wYAxruhku35mycH2L8iyWVn4wWwukyjVYabeA5Nkf40oZj6yjKIyWzBAPmtDsVeb56O5LCfA7C7c4vKLFzIt49Dz4txyRyc7koHpVSMVGdsbQ8g/au9A6anjZCQAbkFADYv839n2FyEwp8sdkr9pGUb82nSv9dDa0QRMU…2FE1D71B02AED4B46~j/Dzld/pf1dg8gAUan1NzhCaMgQrmXc8kTfLWOJzOs9NhO5TLSrGdneEiC/mxUdcOSae/MPRBlkCsHACwVidVxnz5PCc2/v+Nna8mXAouxdxbqV+dApRp5MMue5MgpqZcY7lUM0soGkFl0GngO3/FkFvTlkIjv73aKEl2ygetNY=; bm_mi=F099E9635FDEBDD6A82D5B84387BFD2E~JB57m6UdRFnqffpl+zdYdXYuoYDUxbiPZYx2rbbb25MDkelllTix+MWu9lJWXqEHW3tlNYKx24tpF7R5OTpb7LfUzGMsuzyj+CPDRVi8PZX7snDTLafUPL1zIVrHAuEISgC3+1covRFhmmxeO3ZddDldiHgwYb+HfoSQmA5COVUrtuIFGYmEL7wvwKs3OXPdxIyqiyQZ5o7LAIB0lijPBzz77Y+Rxc6kRf46/b5UZa1pxTTxo8B8vN0SYpQYlPowKB7CwFRIRYolcX/N033POw==
+Host
+	partner.ddnayo.com
+Origin
+	https://partner.ddnayo.com
+Referer
+	https://partner.ddnayo.com/reservationManagement/bookingRequestList?accommodationId=6850
+Sec-Fetch-Dest
+	empty
+Sec-Fetch-Mode
+	cors
+Sec-Fetch-Site
+	same-origin
+TE
+	trailers
+User-Agent
+	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0
+
+
+// 요청 본문
+[39143892]
+
+// 응답 본문
+success	true
+data	true
+errorString	""
+failed	false

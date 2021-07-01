@@ -1,0 +1,47 @@
+Request URL: https://partner.ddnayo.com/security/login
+Request Method: POST
+Status Code: 200 
+Remote Address: 104.74.155.164:443
+Referrer Policy: strict-origin-when-cross-origin
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-encoding: gzip
+content-length: 151
+content-type: application/json;charset=UTF-8
+date: Mon, 31 May 2021 15:08:11 GMT
+expires: 0
+pragma: no-cache
+server: nginx
+set-cookie: SESSION=NTZmYzQxOGMtNjQyOS00OGE1LTkwMzctMWIwOGE3NjgzNTE2; Domain=ddnayo.com; Path=/; Secure; HttpOnly; SameSite=None
+set-cookie: bm_sv=E1FD63A8AEA8C7349F8A863495E6B177~W/uMKvkFD5/t9uJ81m9pbijcuR4Abt1b8/uLOXDTjs5xTDYyZ/nE0xphGjuP4WA0Y0IN2hqDxIgued2Hk0VFzrK0re6Dpl5VpI1K1PfyWpKjSY2jE52Zh+dlewQJZuQtpI9ydH+6qQb7KudEmUwAmt0O6q2Sw/o1xjW36SyOMWo=; Domain=.ddnayo.com; Path=/; Max-Age=6114; HttpOnly
+strict-trans
+-security: max-age=31536000
+vary: Accept-Encoding
+x-content-type-options: nosniff
+x-frame-options: SAMEORIGIN
+x-xss-protection: 1; mode=block
+:authority: partner.ddnayo.com
+:method: POST
+:path: /security/login
+:scheme: https
+accept: application/json, text/plain, */*
+accept-encoding: gzip, deflate, br
+accept-language: ko,en-US;q=0.9,en;q=0.8,ja;q=0.7
+cache-control: no-cache
+content-length: 344
+content-type: multipart/form-data; boundary=----WebKitFormBoundaryMlw9UMu7CYQ0c6wT
+cookie: _ga=GA1.2.1404571154.1621865441; _savedId=hs%25EB%25B9%258C; _gid=GA1.2.352324611.1622465183; ak_bmsc=DC3875A2283273354F570CE46BA52C1968467A279A2300009DF7B460D292614C~plHnB+4F83edyLTc3CKzKJXXnP/hfBLH4znIpvoUzJ/Z8ABej/44KNXcDHsLo/Rz8j0mF5DJX3iCYw7fuEJmaOJjtWmDPl20cXYbsqWZ6hUNsN8pi4quuOxx1TWz+6GmEnoZYOTtLhDAhqrB3vwfbwonjzCybpM+CCatkZYXtO31E/wSF1JucCMY3ePlIjaShbEDU/j0qhpJp7k+OsR2XXCwTme5ZxTva0JeFyJfkYYnsjoSgOReOBUQRcNYAz0L6N; SESSION=ZTQ2OTk4ODMtMzI1YS00NjNiLWE3ZTEtYzBkYmZmNzhlYzdj; _gat_gtag_UA_117930434_4=1; bm_sv=E1FD63A8AEA8C7349F8A863495E6B177~W/uMKvkFD5/t9uJ81m9pbijcuR4Abt1b8/uLOXDTjs5xTDYyZ/nE0xphGjuP4WA0Y0IN2hqDxIgued2Hk0VFzrK0re6Dpl5VpI1K1PfyWpJ0JCdKBY+pfZ2PnrFGKk4/KP50Lza7Wtccui/lV3qzdALIm0YQfrg3pF6AcC+hozE=
+origin: https://partner.ddnayo.com
+pragma: no-cache
+referer: https://partner.ddnayo.com/login
+sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"
+sec-ch-ua-mobile: ?0
+sec-
+
+-dest: empty
+sec-fetch-mode: cors
+sec-fetch-site: same-origin
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36
+
+id: hsºô
+password: moire1779!
+autoLogin: false

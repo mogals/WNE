@@ -1,0 +1,96 @@
+﻿Request URL: https://partner.ddnayo.com/pms-api/reservation/ready
+Request Method: POST
+Status Code: 200 
+Remote Address: 104.75.9.54:443
+
+Referrer Policy: strict-origin-when-cross-origin
+cache-control: no-cache, no-store, max-age=0, must-revalidate
+content-encoding: gzip
+content-length: 119
+content-type: application/json;charset=UTF-8
+date: Mon, 31 May 2021 14:55:34 GMT
+expires: 0
+pragma: no-cache
+server: nginx
+set-cookie: bm_sv=E1FD63A8AEA8C7349F8A863495E6B177~W/uMKvkFD5/t9uJ81m9pbijcuR4Abt1b8/uLOXDTjs5xTDYyZ/nE0xphGjuP4WA0Y0IN2hqDxIgued2Hk0VFzrK0re6Dpl5VpI1K1PfyWpKaOX01uohV32OHPdvDAM14Myxrxw6HWUqUp1nVOUEdm+oo2LAU4GnKMbPOny7dDt0=; Domain=.ddnayo.com; Path=/; Max-Age=6871; HttpOnly
+strict-trans
+-security: max-age=31536000
+vary: Accept-Encoding
+x-content-type-options: nosniff
+x-frame-options: SAMEORIGIN
+x-xss-protection: 1; mode=block
+:authority: partner.ddnayo.com
+:method: POST
+:path: /pms-api/reservation/ready
+:scheme: https
+accept: application/json, text/plain, */*
+accept-encoding: gzip, deflate, br
+accept-language: ko,en-US;q=0.9,en;q=0.8,ja;q=0.7
+cache-control: no-cache
+content-length: 468
+content-type: application/json;charset=UTF-8
+cookie: _ga=GA1.2.1404571154.1621865441; _savedId=hs%25EB%25B9%258C; _gid=GA1.2.352324611.1622465183; SESSION=NDg3NDYyNTEtMzAwMy00OWVmLWFhNTQtMDIwZTcxMWI3ZTA1; ak_bmsc=DC3875A2283273354F570CE46BA52C1968467A279A2300009DF7B460D292614C~plHnB+4F83edyLTc3CKzKJXXnP/hfBLH4znIpvoUzJ/Z8ABej/44KNXcDHsLo/Rz8j0mF5DJX3iCYw7fuEJmaOJjtWmDPl20cXYbsqWZ6hUNsN8pi4quuOxx1TWz+6GmEnoZYOTtLhDAhqrB3vwfbwonjzCybpM+CCatkZYXtO31E/wSF1JucCMY3ePlIjaShbEDU/j0qhpJp7k+OsR2XXCwTme5ZxTva0JeFyJfkYYnsjoSgOReOBUQRcNYAz0L6N; _gat_gtag_UA_117930434_4=1; bm_sv=E1FD63A8AEA8C7349F8A863495E6B177~W/uMKvkFD5/t9uJ81m9pbijcuR4Abt1b8/uLOXDTjs5xTDYyZ/nE0xphGjuP4WA0Y0IN2hqDxIgued2Hk0VFzrK0re6Dpl5VpI1K1PfyWpLr8y77RI9RImT2SIK4Cjsb7hDupFhG+MC9M5w+UfKam05WjJHQ5kYUdlwqgZ6scTA=
+origin: https://partner.ddnayo.com
+pragma: no-cache
+referer: https://partner.ddnayo.com/reservationManagement/registration?accommodationId=6850
+sec-ch-ua: " Not A;Brand";v="99", "Chromium";v="90", "Google Chrome";v="90"
+sec-ch-ua-mobile: ?0
+sec-
+-dest: empty
+sec-fetch-mode: cors
+sec-fetch-site: same-origin
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36
+
+
+// Content
+{"userName":"테스트",
+"userPhone":"010-0000-0000",
+"flowInSaleDomainHomepage":"테스트",
+"pickupPos":string.Empty,
+"pickupTime":string.Empty,
+"arrivalTime":"15:00",
+"managerMemo":"나중에 삭제 예정",
+"isComplete":false,
+"isSmsToReservedUser":false,
+"isSmsToAdministrator":false,
+"isSmsAccountToReservedUser":false,
+"accommodationId":6850,
+"roomsInfo":
+				[{"roomId":90420,
+				"checkInDate":"2021-01-01",
+				"stayDays":1,
+				"numOfRoom":1,
+				"numOfAdult":4,
+				"numOfChild":0,
+				"numOfBaby":0}],
+"others":[],
+"totalPaidPrice":300000}
+
+
+// 응답결과 예시
+{
+  "success": true,
+  "data": {
+    "reservationNo": 38967080,
+    "isSuccess": true,
+    "errorMessage": null,
+    "errorCode": null
+  },
+  "errorString": string.Empty,
+  "failed": false
+}
+
+// 응답결과 예시
+{
+  "success": true,
+  "data": {
+    "reservationNo": null,
+    "isSuccess": false,
+    "errorMessage": "예약 불가: 2022-07-07 90420 예약하려는 방 수가 현재 예약가능한 방 수보다 큽니 다. 상세: (roomId: 90420, date: 2022-07-07, reason: 해당 객실은 예약이 불가능합니다.)",
+    "errorCode": 4
+  },
+  "errorString": string.Empty,
+  "failed": false
+}
+
+

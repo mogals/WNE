@@ -1,0 +1,161 @@
+﻿GET
+	https://partner.ddnayo.com/pms-api/accommodation/6850/reservation/{주문번호}
+상태200
+OK
+버전HTTP/2
+전송됨1.38 KB (2.12 KB 크기)
+리퍼러 정책strict-origin-when-cross-origin
+
+	
+cache-control
+	no-cache, no-store, max-age=0, must-revalidate
+content-encoding
+	gzip
+content-length
+	982
+content-type
+	application/json;charset=UTF-8
+date
+	Thu, 17 Jun 2021 16:07:36 GMT
+expires
+	0
+pragma
+	no-cache
+server
+	nginx
+strict-transport-security
+	max-age=31536000
+vary
+	Accept-Encoding
+x-content-type-options
+	nosniff
+X-Firefox-Spdy
+	h2
+x-frame-options
+	SAMEORIGIN
+x-xss-protection
+	1; mode=block
+	
+Accept
+	application/json, text/plain, */*
+Accept-Encoding
+	gzip, deflate, br
+Accept-Language
+	ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3
+Connection
+	keep-alive
+Cookie
+	_savedId=hs%25EB%25B9%258C; _doNotDisplayEventCard6850=TRUE; SESSION=MmFkZDI3NGYtOWEzZS00NTZhLTg2ZTktMmM3NGQwMWVmYWM5; ak_bmsc=8F33C8ED8F212394EA0FFB82F9158E89B6A26A5CBA6F00001065CB604250D751~plVGVl9fP6j5l6twkzSqLQsXVkSUrGXYbTSzE4tLWSUINjeoYvJTNllOGxhH5vSvQf63qtXXf7fVnzT9Ye9sTMjS9DoPvFUEIqFlkeXz13HcdP7Xd4rhOiKoqHD02uxs+5ZZmBJyjuwHjKF4BFHwmL5i6pj+NJLYMU/UjorPkVB2u7wX5gsbfh/qE4aeqKhYOJLRs45HLY17Juqc7a8dTlqC7IYM533txQSpJ/kd3tC2wzeeMsYOEcUU0yl+pp0Szna2QvwL1IuczLCF4oxkKZ+IhM4S8qXaSRIEdftcwJ4UYNzhCWJC3v6lWaJmPlZl…31F1723222394BDA7~JB57m6UdRFnqffpl+zdYddwBca1LNxjJ9+MnfPxSMQSjKRfQn8DwAZqPfKH4pFusGFBdHLeZWG/U5qtFE0b5sjTgeZctL617V6r4aCd/h0Zq7y02dZI8pc37Z10XgVciqR9Nbt7Zt4MnPZQdrP17tbTBQwWz/VlU/q9PeLKoujQWum0d/9SGSYatu38u3pzdMxZYHV56diIA8jyGCTc17HwOnU3O85/GePTMtZMVoNtlvETvK+EZ735Bym/BCSTRtB+wDj1GMuWARDSBbHc64A==; bm_sv=57D370D2D36D629255CD0CD93F5E72BF~j/Dzld/pf1dg8gAUan1NzvxTguBilpQk3ZQY6TYHhNe4qPee6lODTC8OwwfJddi7/pHFf457bLdikt5mqirdUoV+OO6brApc5tkto20MFSP17octlMj8luFY8ELIMrKVgoPgSEzCqFMCIKSEcKZsjOvhtolk14blJazG3debHBU=
+Host
+	partner.ddnayo.com
+Referer
+	https://partner.ddnayo.com/reservationManagement/detail?accommodationId=6850&reservationNo=39234226
+Sec-Fetch-Dest
+	empty
+Sec-Fetch-Mode
+	cors
+Sec-Fetch-Site
+	same-origin
+User-Agent
+	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:9
+
+// 요청 본문
+없음
+
+
+// 응답 본문
+success	true
+data	Object { vendorSettlement: 0, vendorId: 0, vendorCommissionRate: 0, … }
+	vendorSettlement	0
+	vendorId	0
+	vendorCommissionRate	0
+	userId	null
+	userBizId	13529
+	useStartDate	"2021-07-16"
+	useSelfPg	false
+	useEndDate	"2021-07-16"
+	totalPrice	160000
+	taxCode	"0010"
+	stateCodeName	"결제완료"
+	stateCode	"0030"
+	settlementRate	0
+	settlementPrice	0
+	settlementFeeVat	0
+	settlementFeeSupply	0
+	settlementFeeRate	0
+	settlementFee	0
+	settlementDate	null
+	settlementCodeName	"정산없음"
+	settlementCode	"0010"
+	settlementAgentPrice	0
+	settlementAgentDate	null
+	settlement	false
+	salePrice	0
+	saleDate	"2021-07-17"
+	roomsName	"202호 (2인)"
+	roomPrice	160000
+	reservedDate	"2021-06-17"
+	reservationUserName	"김 김김"
+	reservationNo	39234226
+	reservationId	14641361
+	reservationGoodsNo	null
+	requestCancelCodeName	"펜션주"
+	requestCancelCode	"0010"
+	refundPrice	0
+	profit	0
+	pickupCheckout	""
+	pickupCheckin	""
+	phoneNo	""
+	pgNo	6
+	pgId	null
+	paymentCodeName	"무통장입금"
+	paymentCode	"0010"
+	paidPrice	160000
+	paidPoint	0
+	paidExceedPrice	0
+	paidDate	"2021-06-17 20:17:58.43"
+	otherPrice	0
+	mobilePhoneNo	"010-1234-5678"
+	memo	"6월 17일 네이버 카드결제\n김 김김\n7월 16일 금요일 202호 1박2일 16만원"
+	margin	0
+	isSocial	false
+	isSettlementAgent	false
+	isSendSmsAdminCheck	true
+	isRequestPickup	false
+	isNoTax	null
+	isInMobile	false
+	isHide	false
+	isGavePoint	false
+	isCheckedAdmin	true
+	isAgentFeeWithVat	false
+	ip	"119.193.214.38"
+	givePoint	0
+	flowInSaleDomainHomepage	"네이버 카드결제"
+	flowInSaleDomain	""
+	expireDate	"2021-06-18 09:00"
+	email	""
+	description	".."
+	createdAt	"2021-06-17T20:17:58.283"
+	commentCount	0
+	channelCommissionRate	0
+	chName	null
+	chCodeName	"펜션주"
+	chCode	"0040"
+	carNo	""
+	canceledTypeCodeName	"환불없음"
+	canceledTypeCode	"0060"
+	canceledReason	""
+	canceledDate	null
+	birthDate	""
+	arrivalTime	""
+	agentMemo	""
+	agentFeeRate	0
+	agentFee	0
+	agent	false
+	agencyCommissionRate	0
+	accommodationUserId	108226
+	accommodationTelNo	"1599-0853"
+	accommodationName	"MOIRE478[무아레478]"
+	accommodationId	6850
+errorString	""
+failed	false

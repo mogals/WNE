@@ -1,0 +1,100 @@
+﻿POST
+	https://partner.ddnayo.com/pms-api/accommodation/6850/reservation/{떠나요예약번호}/cancel
+상태200
+OK
+버전HTTP/2
+전송됨785 B (60 B 크기)
+리퍼러 정책strict-origin-when-cross-origin
+
+	
+cache-control
+	no-cache, no-store, max-age=0, must-revalidate
+content-encoding
+	gzip
+content-length
+	73
+content-type
+	application/json;charset=UTF-8
+date
+	Mon, 14 Jun 2021 07:06:35 GMT
+expires
+	0
+pragma
+	no-cache
+server
+	nginx
+set-cookie
+	bm_sv=8781AC78DF5EEDD2FE1D71B02AED4B46~j/Dzld/pf1dg8gAUan1NzhCaMgQrmXc8kTfLWOJzOs9NhO5TLSrGdneEiC/mxUdcOSae/MPRBlkCsHACwVidVxnz5PCc2/v+Nna8mXAouxebej15C98K/Ga2ajklkFtsE/kwEpwovXcI9IWiPbd3owkRj5r2QEUrZjDNmrPAFmc=; Domain=.ddnayo.com; Path=/; Max-Age=7099; HttpOnly
+strict-transport-security
+	max-age=31536000
+vary
+	Accept-Encoding
+x-content-type-options
+	nosniff
+X-Firefox-Spdy
+	h2
+x-frame-options
+	SAMEORIGIN
+x-xss-protection
+	1; mode=block
+	
+Accept
+	application/json, text/plain, */*
+Accept-Encoding
+	gzip, deflate, br
+Accept-Language
+	ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3
+Connection
+	keep-alive
+Content-Length
+	125
+Content-Type
+	application/json;charset=utf-8
+Cookie
+	_savedId=hs%25EB%25B9%258C; _doNotDisplayEventCard6850=TRUE; SESSION=ODFlNzk5MzctYTU1My00NjhkLTlkYzItOWFiMmUxMDhhZGEz; ak_bmsc=06056D893EE2399ED0E2E4C87A99771DAFCF0E3DBC05000087FFC6606E8B2B7C~plUndgeALB5sX7IrdQMy87rD+14/ekYrfLGwvrwAtjw+9d2yaRz9ZbUHWLI79e110BySOhr1Kmsosd46620HgX4YCJUBrhVguBvEqlj2En7YfcJBt4CwW7m/FfzMFqGTbwd7dUoJydB7ncZVupSpJPkXtspt7UBZhGPZ5S6xqL/7kpSn1rWZ649XINy+1DWaW27LNRjqURD0Wp8deriUv5rKF52FRhC1M8B8sazD7U9G4=; bm_sv=8781AC78DF5EEDD2FE1D71B02AED4B46~j/Dzld/pf1dg8gAUan1NzhCaMgQrmXc8kTfLWOJzOs9NhO5TLSrGdneEiC/mxUdcOSae/MPRBlkCsHACwVidVxnz5PCc2/v+Nna8mXAouxd2XoGyhh0ygSxLcaG0EkRdRi5fsonaIoZ1NlBl045kIeb20zeZOpD7v3naroZ++yE=; bm_mi=F099E9635FDEBDD6A82D5B84387BFD2E~JB57m6UdRFnqffpl+zdYdXYuoYDUxbiPZYx2rbbb25MDkelllTix+MWu9lJWXqEHt5C4c6cZ0b3S3lYR3dNrEhEQ2EY9dfjEoV9SSkjDWG/l5Jj1BESAwvutYE6C5RMcIwhY3+GYxrYff+GQiwCdMZNXn9WoV6uTFl83LGjIT6uCBDiSB2DnZd+Yd1V5jkr6cbUju09sCh2igi/SDxlbEdyVeoDdWohaj/nauZ8il1+gSRPP/hsh7RdqUQFv8hQj
+Host
+	partner.ddnayo.com
+Origin
+	https://partner.ddnayo.com
+Referer
+	https://partner.ddnayo.com/reservationManagement/detail?accommodationId=6850&reservationNo=39143320
+Sec-Fetch-Dest
+	empty
+Sec-Fetch-Mode
+	cors
+Sec-Fetch-Site
+	same-origin
+User-Agent
+	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0
+
+
+// 요청 본문  (미입금한 예약 취소)
+
+cancelPrice	140000
+cancelReason	"취소 사유"
+cancelTypeCode	"0060"
+sendMessageOwner	false
+sendMessageUser	true
+
+
+// 요청 본문  (입금한 예약 취소)
+cancelPrice	140000
+cancelReason	"취소사유"
+cancelTypeCode	"0040"
+sendMessageOwner	false
+sendMessageUser	true
+
+
+		cancelTypeCode
+		0040 : 전액환불
+		0050 : 현금일부환불
+		0060 : 환불없음   (아마도? 확인 필요!)
+		0070 : 환불대기   (아마도? 확인 필요!)
+
+
+// 응답 본문
+
+success	true
+data	true
+errorString	""
+failed	false

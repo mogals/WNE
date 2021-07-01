@@ -1,0 +1,95 @@
+﻿POST
+	https://partner.ddnayo.com/pms-api/accommodation/6850/reservation/user/update
+상태200
+OK
+버전HTTP/2
+전송됨785 B (60 B 크기)
+리퍼러 정책strict-origin-when-cross-origin
+
+	
+cache-control
+	no-cache, no-store, max-age=0, must-revalidate
+content-encoding
+	gzip
+content-length
+	73
+content-type
+	application/json;charset=UTF-8
+date
+	Tue, 15 Jun 2021 15:01:20 GMT
+expires
+	0
+pragma
+	no-cache
+server
+	nginx
+set-cookie
+	bm_sv=CBB13C4977BF431DAB4C4E0B88BBA9F2~usfhjwGBIdbrnREby9MxS4A+f4+UDsMqreTk2FvSHD10nyLxxbovIYWcFyH0I/FpSD5vrReG30a4BdrBGPI4q7kLdEAh/Z2jjaTjgsJg3sGbxcfPsU0DBqanSfZgWDunilqQ5f2n8wI5dQAJ6XvFyYAsjAnFQxXtHfRJcsUD6iQ=; Domain=.ddnayo.com; Path=/; Max-Age=7136; HttpOnly
+strict-transport-security
+	max-age=31536000
+vary
+	Accept-Encoding
+x-content-type-options
+	nosniff
+X-Firefox-Spdy
+	h2
+x-frame-options
+	SAMEORIGIN
+x-xss-protection
+	1; mode=block
+	
+Accept
+	application/json, text/plain, */*
+Accept-Encoding
+	gzip, deflate, br
+Accept-Language
+	ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3
+Connection
+	keep-alive
+Content-Length
+	320
+Content-Type
+	application/json;charset=utf-8
+Cookie
+	_savedId=hs%25EB%25B9%258C; _doNotDisplayEventCard6850=TRUE; SESSION=YzcyYjQzNzktMTE2MC00MGU5LTg5NTctMjA2NmM3ZDllNjVj; ak_bmsc=D63039E1FF4FD18A65E11C76CE86D3D8ADDFE33D6867000080C0C8600484575E~plJSeqenwY2OahHJTnMqAXOCmYOrnC3YFdz4n2NxyfKoadBqqasY5vfSYSB2QxANRzX2UApq2WH3oJOD5QDleqjRWBnceo/PwVWYrjOjHb+0cMPBpasd+0H4GKw0BtpxgWuLxNVyX/tq9bF66CNdMTjhDhxLmW6U2Yu91pnViBA0lNeJKfzgeOxoI8CL1XD70Y2BFEv03FJQqf8IA0KhZoh1ar/HWz+q1eGlgd5DAYRqs=; bm_sv=CBB13C4977BF431DAB4C4E0B88BBA9F2~usfhjwGBIdbrnREby9MxS4A+f4+UDsMqreTk2FvSHD10nyLxxbovIYWcFyH0I/FpSD5vrReG30a4BdrBGPI4q7kLdEAh/Z2jjaTjgsJg3sFvcNCLWsLeTBNDXmqlqPaSs5M9vnZj4K6G59FRskmzVYpwuFNZ+tagKAvQFJJSE7k=; bm_mi=BAB86C27737EF95DC4FE8132E4EFACE9~G0S4VMgDF9IxTgh3qrZDclSMUXtoNpWHOWEYDLlO5tpk8t+fFeTuAUE333GyIJSJZGSnGdbXEpnY1MzmmfVw1ZL5HUpuoNkPlOrOe5b3RII6dZcJQTV8RYrlykEDnEsP0+HlswLu0r34Efv8d+zay6y8j/k0T/EggsflPfEC4gPfjIjzMUz/YLMnIvNwvGjyNgExNGR54McOHVZOKePlyAEpkxPJFcymbjis8YcREi62V8kNOrtHuR2gYDaEkCSM
+Host
+	partner.ddnayo.com
+Origin
+	https://partner.ddnayo.com
+Referer
+	https://partner.ddnayo.com/reservationManagement/detail?accommodationId=6850&reservationNo=39185875
+Sec-Fetch-Dest
+	empty
+Sec-Fetch-Mode
+	cors
+Sec-Fetch-Site
+	same-origin
+TE
+	trailers
+User-Agent
+	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0
+
+
+// 요청 본문
+agent	false
+arrivalTime	""
+birthDate	""
+carNo	""
+description	""
+email	""
+flowInSaleDomainHomepage	"네이버 카드결제"
+isRequestPickup	false
+mobilePhoneNo	"010-9947-4141"
+phoneNo	""
+pickupCheckin	""
+pickupCheckout	""
+reservationNo	39185875
+reservationUserName	"김 혜리"
+userId	null
+
+
+// 응답 본문 예시
+success	true
+data	true
+errorString	""
+failed	false

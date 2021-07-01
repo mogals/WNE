@@ -1,0 +1,137 @@
+﻿POST
+	https://partner.ddnayo.com/pms-api/accommodation/6850/reservation/management-list
+
+cache-control
+	no-cache, no-store, max-age=0, must-revalidate
+content-encoding
+	gzip
+content-length
+	1584
+content-type
+	application/json;charset=UTF-8
+date
+	Thu, 17 Jun 2021 19:20:33 GMT
+expires
+	0
+pragma
+	no-cache
+server
+	nginx
+set-cookie
+	bm_sv=90775A54321B8049C62AB5D12AB801FB~j0G4eZsr2K5BZUtyJR4W/bvZ9ebjMjW1vwFRDBBzFLD7paMnZMAXgWuX2uQnCpHzetcrAP3U+TJkDcQF11627oQwDMyPAyX5SWLpZehQoH0ZcoTUvBtcvVl/KS1B8TQ/Nt23cracqG7aiPvAwfGvZow4/WG0QU/NKIoEqXhhqng=; Domain=.ddnayo.com; Path=/; Max-Age=7185; HttpOnly
+strict-transport-security
+	max-age=31536000
+vary
+	Accept-Encoding
+x-content-type-options
+	nosniff
+X-Firefox-Spdy
+	h2
+x-frame-options
+	SAMEORIGIN
+x-xss-protection
+	1; mode=block
+	
+Accept
+	application/json, text/plain, */*
+Accept-Encoding
+	gzip, deflate, br
+Accept-Language
+	ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3
+Connection
+	keep-alive
+Content-Length
+	231
+Content-Type
+	application/json;charset=utf-8
+Cookie
+	_savedId=hs%25EB%25B9%258C; _doNotDisplayEventCard6850=TRUE; SESSION=MzdhYTZlOTEtMjFmZS00YzY0LTkyOWQtOWNmMWU1MmM0Njhl; ak_bmsc=8262F87923BB46FC091A84CF4CC0441DADDFE3648063000072A0CB60CE2F9902~plPXRyb9PwSK40DhTExZuK18DZe++uqS3LdXKD8WFKoaCc4t2YwZY2dJtADNkVZH1jeOfvr03HA6RnWLgrDg2JYzmTpdfUe0gfzBLNbYn7ITqcPSOZFs/SyEBXzdrYGNFASXU3zB3pk3vZdSMS9gHVk+W6Ama1iyoN+WREsU0VlBkZZWI/zdffxxdBEqgSdz54sYi7SOr68Rbc6otXzbIgkhjN5G4k8I46pfEr9VUxbOQ=; bm_sv=90775A54321B8049C62AB5D12AB801FB~j0G4eZsr2K5BZUtyJR4W/bvZ9ebjMjW1vwFRDBBzFLD7paMnZMAXgWuX2uQnCpHzetcrAP3U+TJkDcQF11627oQwDMyPAyX5SWLpZehQoH2JkRzpKAq6UxuMl4+wkZxH+KqDPQTldv8vVoscx+MBLbICE2JKH5UdKFL8SNaBscg=
+Host
+	partner.ddnayo.com
+Origin
+	https://partner.ddnayo.com
+Referer
+	https://partner.ddnayo.com/reservationManagement/bookingRequestList?accommodationId=6850
+Sec-Fetch-Dest
+	empty
+Sec-Fetch-Mode
+	cors
+Sec-Fetch-Site
+	same-origin
+TE
+	trailers
+User-Agent
+	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0
+
+
+// 요청 본문
+accommodationName	""
+isAgent	null
+isSearchAll	null
+isStay	null
+page	1
+paymentCode	null
+searchDateTypeCode	"0000"
+searchEndedAt	"2021-06-18"
+searchStartedAt	"2021-06-08"
+searchText	""
+size	10
+stateCode	null
+
+
+
+// 응답 본문
+success	true
+data	Object { page: 1, size: 10, count: 1, … }
+	page	1
+	size	10
+	count	1
+	totalCount	1
+	list	[ {…} ]    
+		0	Object { accommodationId: 6850, accommodationName: "MOIRE478[무아레478]", reservationNo: 39214989, … }
+			public accommodationId
+			public accommodationName
+			public reservationNo
+			public reservationUserName
+			public mobilePhoneNo
+			public useStartDate
+			public useEndDate
+			public reservedDate
+			public createdAt
+			public stateCode
+			public stateName
+			public paymentCode	
+			public paymentName
+			public totalPrice
+			public paidPrice
+			public settlementPrice
+			public margin
+			public profit
+			public chCode
+			public chName
+			public isAgent
+			public settlementCode
+			public roomsName
+			public expireDate
+			public canceledDate
+			public canceledTypeCode
+			public canceledTypeName
+			public isSettlement
+			public settlementDate
+			public isInMobile
+			public flowInSaleDomainHomepage
+			public isRequestPickup
+			public pickupCheckin
+			public pickupCheckout
+			public description
+			public memo
+			public optionCount
+			public userReservationCount
+			public autoAssign
+			public countOfReserved
+			public countOfAssigned
+			public resortType
+	sumTotalPrice
+	sumSettlementPrice
+errorString	""
+failed	false

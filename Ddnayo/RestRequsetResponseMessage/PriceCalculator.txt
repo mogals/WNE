@@ -1,0 +1,94 @@
+﻿POST
+	https://partner.ddnayo.com/pms-api/accommodation/6850/reservation/price/calculator
+상태200
+OK
+버전HTTP/2
+전송됨579 B (187 B 크기)
+리퍼러 정책strict-origin-when-cross-origin
+
+	
+cache-control
+	no-cache, no-store, max-age=0, must-revalidate
+content-encoding
+	gzip
+content-length
+	143
+content-type
+	application/json; charset = UTF - 8
+date
+	Mon, 14 Jun 2021 06:50:29 GMT
+expires
+	0
+pragma
+	no-cache
+server
+	nginx
+strict-transport-security
+	max-age=31536000
+vary
+	Accept-Encoding
+x-content-type-options
+	nosniff
+X-Firefox-Spdy
+	h2
+x-frame-options
+	SAMEORIGIN
+x-xss-protection
+	1; mode = block
+
+
+Accept
+	application/json, text/plain, */*
+Accept-Encoding
+	gzip, deflate, br
+Accept-Language
+	ko-KR,ko;q=0.8,en-US;q=0.5,en;q=0.3
+Connection
+	keep-alive
+Content-Length
+	133
+Content-Type
+	application/json;charset=utf-8
+Cookie
+	_savedId=hs%25EB%25B9%258C; _doNotDisplayEventCard6850=TRUE; SESSION=ODFlNzk5MzctYTU1My00NjhkLTlkYzItOWFiMmUxMDhhZGEz; ak_bmsc=28BBB945F49831E488A9F36D1B241550ADDFE33D68670000E3E1C660A54E210D~plmozF22a6XR8HB4Kxq3BIJ9GqS+ZV4Z7AcQ2dEtzTbnBRlAxRunGhPJnPjOD07oO9iBfBFR9VVjopd5CoqdlFdmOWNXcFam1diLNvp4CbB4KR1DGn938m9R+tnEbBKS+lszobkl9S4E5OAX9JIxfUWGgfwMZFq7r9CxSGVkTnutW9w2Veq5kotQZCIxgNkD6HKlHrSlQmk+0APH3TGnxS46mc3FPZL8pBne3HssVcHWrUIjG7YhmvkpN+UYRXC8SSxwRTxwjF2vKrEg3K0GYl0NCXqgNjUn9k2RfzblVrh4Q=; bm_sv=D6F05A7317…38C3C65D1EBA8E8B3~usfhjwGBIdbrnREby9MxS/5ADBWeIT77cekb2Bnhu7fGSegIyvm2PeasruLo9e/2cEUcS8wJaizuWwTtjkUXnYW3D66u2xIy5F2HBk2a6KY6G044tFY9BYADvRq9o3j0zHAlPH1Q8ofjfdEAqAbHRvLw43de8IuTzvDl4PP2xNA=; bm_mi=03EE884E5143EDFC701FAA1C233113D9~G0S4VMgDF9IxTgh3qrZDcjGKe/sP36m/IfAOwhPBUI90M9GTITeNVkQ/Mbf8hccl+zHWjIXyFjEEa5v9lWg4ACRNhSG7EhBW/ScPWASBATcYhkbPUrC8tFOO6N4I9Wce6BypWC3sej2hW8//cKZ9QX0eIQoCpNfF28OPUpnpHfsVmiXoANaeq0Cb30o6X390vrjH+SjgsxcOGF7TyLj77WzP1gaQkc3CF/9fJjbTFUl6ZGe0qlUp4EwkNoVbSZcvtYONaxoF6rRQvQbJO8h/WA==
+Host
+	partner.ddnayo.com
+Origin
+	https://partner.ddnayo.com
+Referer
+	https://partner.ddnayo.com/reservationManagement/registration?accommodationId=6850
+Sec-Fetch-Dest
+	empty
+Sec-Fetch-Mode
+	cors
+Sec-Fetch-Site
+	same-origin
+User-Agent
+	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Ge
+
+// 요청페이로드
+{
+  "accommodationId": 6850,
+  "roomId": 90420,
+  "startDate": "2021-06-14",
+  "stayDays": 3,
+  "adultOccupancy": 1,
+  "childOccupancy": 0,
+  "babyOccupancy": 0
+}
+
+
+// 응답예시
+{
+  "success": true,
+  "data": {
+    "roomId": 90420,
+    "exceedPersonPrice": 0,
+    "exceedPersonOccupancy": 0,
+    "standardOccupancy": 4,
+    "maxStandardOccupancy": 4,
+    "totalPrice": 660000
+  },
+  "errorString": "",
+  "failed": false
+}
