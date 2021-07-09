@@ -134,7 +134,7 @@ namespace Report
             {
                 sheet.GetCell(14, 9).SetCellValue($"주말");
             }
-            sheet.GetCell(14, 10).SetCellValue($"{x}박");
+            sheet.GetCell(14, 10).SetCellValue($"{x} 박");
             sheet.GetCell(14, 11).SetCellValue(pricex);
             sheet.GetCell(14, 12).SetCellValue(pricex * x);
 
@@ -150,7 +150,7 @@ namespace Report
                 {
                     sheet.GetCell(15, 9).SetCellValue($"주중");
                 }
-                sheet.GetCell(15, 10).SetCellValue($"{y}박");
+                sheet.GetCell(15, 10).SetCellValue($"{y} 박");
                 sheet.GetCell(15, 11).SetCellValue(pricey);
                 sheet.GetCell(15, 12).SetCellValue(pricey * y);
             }

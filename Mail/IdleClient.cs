@@ -142,12 +142,13 @@ namespace ImapIdle
                                 _richTextBox.AppendText("\n");
                                 _richTextBox.AppendText($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 예약 메일 처리 완료");
 
-                                mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약.mp3")));
+                                mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약이등록됐습니다알림.mp3")));
                                 mediaPlayer.Play();
+                                await Task.Delay(2000);
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약이등록됐습니다.mp3")));
                                 mediaPlayer.Play();
-
                                 break;
+
                             case ReservationState.소액테스트:
                                 Console.WriteLine();
                                 Console.WriteLine("소액 테스트 메일 => 무시");
@@ -156,9 +157,13 @@ namespace ImapIdle
                                 _richTextBox.AppendText("\n");
                                 _richTextBox.AppendText($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 소액 테스트 메일 => 무시");
 
+                                mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다알림.mp3")));
+                                mediaPlayer.Play();
+                                await Task.Delay(2000);
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다.mp3")));
                                 mediaPlayer.Play();
                                 break;
+
                             case ReservationState.입금대기:
                                 Console.WriteLine();
                                 Console.WriteLine("아래 입금대기 메일 => 무시");
@@ -170,9 +175,13 @@ namespace ImapIdle
                                 _richTextBox.AppendText("\n");
                                 _richTextBox.AppendText($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 입금대기 메일 무시");
 
+                                mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다알림.mp3")));
+                                mediaPlayer.Play();
+                                await Task.Delay(2000);
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다.mp3")));
                                 mediaPlayer.Play();
                                 break;
+
                             case ReservationState.취소:
                                 _richTextBox.AppendText("\n");
                                 _richTextBox.AppendText($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 취소 메일 도착");
@@ -184,11 +193,14 @@ namespace ImapIdle
                                 _richTextBox.AppendText("\n");
                                 _richTextBox.AppendText($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 취소 메일 처리 완료");
 
-                                mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "취소.mp3")));
+                                
+                                mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약이취소됐습니다알림.mp3")));
                                 mediaPlayer.Play();
+                                await Task.Delay(2000);
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약이취소됐습니다.mp3")));
                                 mediaPlayer.Play();
                                 break;
+
                             case ReservationState.예약메일아님:
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약메일이아닙니다.mp3")));
                                 mediaPlayer.Play();
@@ -225,13 +237,17 @@ namespace ImapIdle
                 }
             }
         }
+
+        /// <summary>
+        /// /////////////////////////
+        /// </summary>
         public void ConnectPartnerCenter()
         {
             chromeDriverService = ChromeDriverService.CreateDefaultService();
             chromeDriverService.HideCommandPromptWindow = true;
             chromeOptions = new ChromeOptions();
             chromeOptions.AddArgument("disable-gpu");
-            if (!Directory.Exists("C:\\booking\\Default"))
+            if (!Directory.Exists("C:\\boooking\\Default"))
             {
                 Directory.CreateDirectory("C:\\booking\\Default");
             }
