@@ -14,7 +14,7 @@ using WNE.Parsing;
 
 namespace WNE.Ddnayo
 {
-    class DdnayoClient
+    public class DdnayoClient
     {
         CookieContainer cookies;
         HttpClientHandler handler;
@@ -171,7 +171,7 @@ namespace WNE.Ddnayo
                     pickupPos = string.Empty,
                     pickupTime = string.Empty,
                     roomsInfo = new List<Room>(),
-                    userName = reservationFromMail.테스트메일인가? "@@@"+reservationFromPartnerCenter.예약자명 : reservationFromPartnerCenter.예약자명,
+                    userName = reservationFromMail.테스트메일인가 ? "@@@" + reservationFromPartnerCenter.예약자명 : reservationFromPartnerCenter.예약자명,
                     userPhone = reservationFromMail.테스트메일인가 ? "010-0000-0000" : reservationFromPartnerCenter.전화번호,
                     totalPaidPrice = reservationFromMail.결제금액
                 };
@@ -284,7 +284,7 @@ namespace WNE.Ddnayo
 
 
 
-                searchText = reservationFromMail.테스트메일인가? "0000" : ( reservationFromPartnerCenter.전화번호뒷자리 ?? string.Empty) ,
+                searchText = reservationFromMail.테스트메일인가 ? "0000" : (reservationFromPartnerCenter.전화번호뒷자리 ?? string.Empty),
 
 
 
@@ -381,8 +381,8 @@ namespace WNE.Ddnayo
                     cancelPrice = 네이버예약과일치하는항목.totalPrice,
                     cancelReason = $"네이버 취소({reservationFromMail.취소사유})",
                     cancelTypeCode = "0040", // 전액환불
-                    sendMessageOwner = reservationFromMail.테스트메일인가? false : true,
-                    sendMessageUser = reservationFromMail.테스트메일인가? false : true,
+                    sendMessageOwner = reservationFromMail.테스트메일인가 ? false : true,
+                    sendMessageUser = reservationFromMail.테스트메일인가 ? false : true,
                 };
 
                 string requestUrl = $"https://partner.ddnayo.com/pms-api/accommodation/6850/reservation/{네이버예약과일치하는항목.reservationNo}/cancel";
@@ -520,8 +520,37 @@ namespace WNE.Ddnayo
             string managerMemo = $"{reservationFromMail.예약신청일시.Value.ToString("M월 d일")} {GetFlowInSaleDomainHomepage(reservationFromMail.결제수단)}{Environment.NewLine}" +
                               $"{reservationFromPartnerCenter.예약자명}{Environment.NewLine}" +
                               $"{reservationFromMail.이용시작일시.Value.ToString("M월 d일 dddd")} {reservationFromMail.객실} {reservationFromMail.이용일수}박{reservationFromMail.이용일수 + 1}일 {reservationFromMail.메모용객실이용금액}{Environment.NewLine}" +
-                              $"{string.Join(Environment.NewLine, reservationFromMail.메모용옵션들)}";
-            return managerMemo;
+                              $"{string.Join(Environment.NewLine, reservationFromMail.메모용옵션들)}{Environment.NewLine}";
+            if (reservationFromPartnerCenter.지난예약들.Count.Equals(0))
+            {
+                reservationFromPartnerCenter.떠나요메모사항 = managerMemo;
+                reservationFromPartnerCenter.엑셀메모사항 = "신규예약";
+            }
+            else
+            {
+                var pastReservationsMemo = $"{reservationFromPartnerCenter.지난예약들.Count}회 방문 : ";
+                var newMemoLineToAdd = pastReservationsMemo;
+                foreach (var 지난예약 in reservationFromPartnerCenter.지난예약들)
+                {
+                    var 객실명 = reservationFromPartnerCenter.객실;
+                    var 이용시작날짜 = reservationFromPartnerCenter.이용시작일시.Value.ToString("yy/M/d");
+                    var newMemoToAdd = $"{객실명}({이용시작날짜})";
+                    if ((newMemoLineToAdd + newMemoToAdd).Length < 20)
+                    {
+                        newMemoLineToAdd += newMemoToAdd;
+                    }
+                    else
+                    {
+                        pastReservationsMemo += newMemoLineToAdd;
+                        newMemoLineToAdd = Environment.NewLine + newMemoToAdd;
+                    }
+                }
+                pastReservationsMemo += newMemoLineToAdd;
+
+                reservationFromPartnerCenter.떠나요메모사항 = managerMemo + pastReservationsMemo;
+                reservationFromPartnerCenter.엑셀메모사항 = pastReservationsMemo;
+            }
+            return reservationFromPartnerCenter.떠나요메모사항;
         }
     }
 }

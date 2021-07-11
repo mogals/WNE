@@ -1,1 +1,69 @@
-Chrome Profile Folder : 
+﻿## 크롬
+#ChromeProfileFolder : "ChromeProfileFolder"
+
+##지메일
+#지메일SslOptions :
+#지메일ImapPort : 993
+#지메일Host : "imap.gmail.com"
+지메일Username : "moire478.bot@gmail.com"
+지메일Password : "moire1779!"
+
+## 네이버
+#네이버Username : "moire478_bot"
+#네이버Password : "moire1779!"
+#네이버파트너센터고객정보RequestUrl : "https://partner.booking.naver.com/bizes/192655/booking-list-view/users/{userNumber}"
+#네이버파트너센터고객정보XPathSelector : "/html/body/div/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div[1]/div[1]/div/div[1]/div/span[2]/div/a"
+#네이버파트너센터고객정보CssSelector : 
+#네이버파트너센터고객번호를구하기위한속성 : "data-tst_click_link"
+#네이버파트너센터지난예약RequestUrl : "https://partner.booking.naver.com/bizes/192655/booking-list-view/users/{userNumber}/bookings"
+#네이버파트너센터지난예약지난예약XpathSelector : "/html/body/div/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div/div/div"
+#네이버파트너센터지난예약지난예약CssSelector : 
+#네이버파트너센터개인정보XPathSelector : "/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div[1]/div[1]"
+#네이버파트너센터개인정보CssSelector : 
+#네이버파트너센터예약내역XPathSelector : "/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div[1]/div[2]"
+#네이버파트너센터예약내역CssSelector :
+#네이버파트너센터결제정보XPathSelector : "/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]"
+#네이버파트너센터결제정보CssSelector :
+#네이버파트너센터툴팁XPathSelector : "/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/div[2]"
+#네이버파트너센터툴팁CssSelector :
+
+#오류발생시알림메일 : ["moire478.bot@gmail.com", "moire478_bot@naver.com"]
+#얼마이하를소액결제로볼것인가 : 5000
+
+## 떠나요
+#떠나요Username : "hs빌"
+#떠나요Password : "moire8824!"
+#떠나요AuthLogin : "false"
+#떠나요AccomodationId : 6850
+#떠나요MaxStayDays : 15
+#떠나요LoginRequestUrl: "https://partner.ddnayo.com/security/login"
+#떠나요RegisterRequestUrl : "https://partner.ddnayo.com/pms-api/reservation/ready"
+#떠나요CancelRequestUrl : ""
+#떠나요DeleteRequestUrl : ""
+#떠나요RetrieveRequestUrl : "https://partner.ddnayo.com/pms-api/accommodation/{accomodationId}/reservation/management-list"
+
+#몇시간전메일부터처리할것이가 : ""
+#엑셀저장폴더 : ""
+#엑셀파일형식 : ""
+
+## Media 폴더
+#회사로고 : "moire478logo.png"
+#메일도착알림음 : ""
+#예약형식이아닌메일알림음 : ""
+#에약형식이아닌메일알림말 : "예약메일이아닙니다.mp3"
+#입금대기메일알림음 : "예약을무시합니다알림.mp3"
+#입금대기메일알림말 : "예약을무시합니다.mp3"
+#예약무시알림음 : "예약을무시합니다알림.mp3"  # 소액결제 무시
+#예약무시알림말 : "예약을무시합니다.mp3"      # 소액결제 무시
+#예약등록알림음 : "예약이등록됐습니다알림.mp3"
+#예약등록알림말 : "예약이등록됐습니다.mp3"
+#예약위소알림음 : "예약이취소됐습니다알림.mp3"
+#예약취소알림말 : "예약이취소됐습니다.mp3"
+#오류발생알림음 : "오류가발생했습니다알림.mp3"
+#오류발생알림말 : "오류가발생했습니다.mp3"
+#거래내역서등록알림음 : ""
+#거래내역서등록알림말 : ""
+#알림음과알림말사이재생시간간격 : 2  # 초 단위
+
+테스트예약표기문자 : "@@@"
+#객실정보 : 

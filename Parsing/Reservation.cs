@@ -48,10 +48,13 @@ namespace WNE.Parsing
         public string 예약유형;
         public string 유입경로 = string.Empty; // 유입경로가 공백인 상태로 보내지면 떠나요에서 admin으로 자동 설정됨.
         public string 유입경로ToDdnayo;
-        public string 메모사항;
+        public string 떠나요메모사항;
+        public string 엑셀메모사항;
         public List<string> 메모용옵션들;
         public List<옵션> 옵션들 = new List<옵션>();
+        public List<PastReservation> 지난예약들 = new List<PastReservation>();
         public string NPay주문;
+        public string 예약자번호;
 
         public Reservation() { }
         public Reservation(string partnerCenterMessage)
@@ -124,7 +127,10 @@ namespace WNE.Parsing
                             }
                             예약자명 = 성명;
                             break;
-
+                        case nameof(예약자번호):
+                            Console.WriteLine($"{제목} : {내용}");
+                            예약자번호 = 내용.Trim();
+                            break;
                         case "전화번호":
                             Console.WriteLine($"{제목} : {내용}");
                             전화번호 = 내용;
@@ -166,7 +172,7 @@ namespace WNE.Parsing
                             {
                                 인원수 = int.Parse(예약상품분리[1].Replace(")", string.Empty).Trim());
                             }
-                            catch (IndexOutOfRangeException e)
+                            catch (IndexOutOfRangeException)
                             {
                                 Console.ForegroundColor = ConsoleColor.Green;
                                 Console.WriteLine("객실정보에서 객실 인원수 추출 불가 => 0으로 처리");
@@ -271,7 +277,7 @@ namespace WNE.Parsing
                     예약상태 = ReservationState.소액테스트;
                 }
             }
-            catch (NotReservationMailException e)
+            catch (NotReservationMailException)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("파트너센터에서 자료 조회 중 예약 형식에 맞지 않는 자료 발견");
@@ -288,6 +294,7 @@ namespace WNE.Parsing
             catch (Exception e)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(e);
                 Console.WriteLine("파트너센터에서 자료 조회 중 예상치 못 한 예외 발생 => 개발자에게 문의해 주세요.");
                 Console.WriteLine($"예외발생 메일 : {partnerCenterMessage}");
                 Console.ForegroundColor = ConsoleColor.White;
@@ -404,7 +411,7 @@ namespace WNE.Parsing
                             {
                                 인원수 = int.Parse(예약상품분리[1].Replace(")", string.Empty).Trim());
                             }
-                            catch (IndexOutOfRangeException e)
+                            catch (IndexOutOfRangeException)
                             {
                                 Console.ForegroundColor = ConsoleColor.Green;
                                 Console.WriteLine("예약상품에서 객실 인원수 추출 불가 => 0으로 처리");
@@ -665,7 +672,7 @@ namespace WNE.Parsing
                     예약상태 = ReservationState.소액테스트;
                 }
             }
-            catch (NotReservationMailException e)
+            catch (NotReservationMailException)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("예약메일 형식에 맞지 않음");

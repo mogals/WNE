@@ -273,7 +273,10 @@ namespace Report
             sheet.GetCell(47, 7).SetCellValue(GetFlowInSaleDomainHomepage(reservationFromMail.결제수단));
 
             // 요청사항
-            sheet.GetCell(50, 2).SetCellValue(reservationFromMail.요청사항);
+            sheet.GetCell(46, 2).SetCellValue(reservationFromMail.요청사항);
+
+            // 방문횟수
+            sheet.GetCell(49, 2).SetCellValue(reservationFromPartnerCeter.엑셀메모사항);
 
             // 수식계산
             XSSFFormulaEvaluator.EvaluateAllFormulaCells(workbook);

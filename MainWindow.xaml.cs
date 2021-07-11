@@ -19,13 +19,15 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WNE.Parsing;
 
 namespace WNE
 {
     public partial class MainWindow : Window
     {
         public string saveFolder { get; set; }
-        public Info info { get; set; }
+        
+        public Setting setting { get; set; }
 
         public IdleClient idleClient;
         public MainWindow()
@@ -39,6 +41,9 @@ namespace WNE
                 richTextBox.AppendText($"\n[{dialog.FileName}] 에 엑셀파일을 저장합니다.");
                 saveFolder = dialog.FileName;
             }
+
+            setting = YamlFileController.Instance.DeSerialize<Setting>("설정.yml");
+            richTextBox.AppendText(setting.테스트예약표기문자);
         }
 
         private void start_Click(object sender, RoutedEventArgs e)
@@ -53,8 +58,8 @@ namespace WNE
                 SslOptions = SecureSocketOptions.Auto,
                 imapMailPort = 993,
                 mailHost = "imap.gmail.com",
-                mailUsername = gmail.Text,
-                mailPassword = password.Password,
+                mailUsername = string.IsNullOrWhiteSpace(gmail.Text) ? "moire478.bot@gmail.com" : gmail.Text,
+                mailPassword = string.IsNullOrWhiteSpace(password.Password) ? "moire1779!" : password.Password,
                 naverUsername = "moire478_bot",
                 naverPassword = "moire1779!",
                 ddnayoUsername = "hs빌",

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace WNE.Ddnayo.Content
 {
     //  https;//partner.ddnayo.com/pms-api/accommodation/6850/reservation/management-list
-    class ManagementListResponseContent
+    public class ManagementListResponseContent
     {
         public bool? success;
         public ManagementListResponseData data;

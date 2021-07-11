@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Ddnayo.Ddnayo.Content
 {
     // https://partner.ddnayo.com/pms-api/accommodation/6850/reservation/{주문번호}
-    class ReservationResponseContent
+    public class ReservationResponseContent
     {
         public bool? success;
         public ReservationResponseData data;

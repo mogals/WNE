@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace WNE.Parsing { 
-    class RoomInfo
+    public class RoomInfo
     {
         public int roomId;
         public string 객실;
