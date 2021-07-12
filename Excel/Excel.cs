@@ -15,6 +15,7 @@ using NPOI.SS.Util;
 using WNE.Parsing;
 using WNE;
 using System.Windows.Media;
+using System.Windows.Controls;
 
 namespace Report
 {
@@ -72,7 +73,7 @@ namespace Report
 
         };
 
-        public void Save(Reservation reservationFromMail, Reservation reservationFromPartnerCeter, Info info)
+        public void Save(Reservation reservationFromMail, Reservation reservationFromPartnerCeter, Info info, RichTextBox richTextBox)
         {
             var 거래내역서파일 = Path.Combine(Environment.CurrentDirectory, "거래내역서.xlsx");
             var workbook = GetWorkbook(거래내역서파일);
@@ -111,9 +112,8 @@ namespace Report
             // 일차 연립방정식의 해를 찾지 못하고 for문을 탈출한 경우?
             if (x == days +1)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("테스트 메일? 방정식을 풀지 못 함");
-                Console.ForegroundColor = ConsoleColor.White;
+                richTextBox.AppendText("\n테스트 메일? 방정식을 풀지 못 함");
+                richTextBox.AppendText("\n개발자에게 알려주세요.");
             }
 
             // 객실 입력 준비
@@ -276,7 +276,7 @@ namespace Report
             sheet.GetCell(46, 2).SetCellValue(reservationFromMail.요청사항);
 
             // 방문횟수
-            sheet.GetCell(49, 2).SetCellValue(reservationFromPartnerCeter.엑셀메모사항);
+            sheet.GetCell(49, 2).SetCellValue(reservationFromPartnerCeter.엑셀방문횟수);
 
             // 수식계산
             XSSFFormulaEvaluator.EvaluateAllFormulaCells(workbook);
@@ -337,7 +337,7 @@ namespace Report
             }
         }
 
-        public void RemoveExcel(Reservation reservationFromMail, Reservation reservationFromPartnerCenter, Info info)
+        public void RemoveExcel(Reservation reservationFromMail, Reservation reservationFromPartnerCenter, Info info, RichTextBox richTextBox)
         {
             defaultPath = info.saveFolder;
             string year = reservationFromMail.이용시작일시.Value.ToString("yyyy년");
@@ -354,9 +354,9 @@ namespace Report
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                Console.WriteLine("파일 삭제 실패");
-                Console.WriteLine("오류 로그 확인 후 코드 수정");
+                richTextBox.AppendText($"\ne");
+                richTextBox.AppendText($"\n파일 삭제 실패");
+                richTextBox.AppendText($"\n오류 로그 확인 후 코드 수정");
                 throw;
             }
         }
@@ -369,8 +369,6 @@ namespace Report
             var roomId = GetNaverRoomInfo(reservationFromMail).roomId;
             string startDateTime = reservationFromMail.이용시작일시.Value.ToString("yyyy-MM-ddT00:00:00");
             string endDateTime = reservationFromMail.이용시작일시.Value.AddDays(7).ToString("yyyy-MM-ddT00:00:00");
-            Console.WriteLine($"startDateTime : {startDateTime}");
-            Console.WriteLine($"endDateTime : {endDateTime}");
             var url = $"https://api.booking.naver.com/v3.0/businesses/192655/biz-items/{roomId}/daily-schedules?lang=ko&endDateTime={endDateTime}&startDateTime={startDateTime}";
             var requestMessage = new HttpRequestMessage(HttpMethod.Get, url);
             requestMessage.Headers.UserAgent.ParseAdd(" Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36");
@@ -380,15 +378,13 @@ namespace Report
             var result = response.Content.ReadAsStringAsync().Result;
             dynamic json = JsonConvert.DeserializeObject<dynamic>(result);
             List<int> prices = new List<int>();
-            Console.WriteLine("일주일간 가격 출력");
+            // 일주일간 가격 추출
             for (int i = 0; i < 7; i++)
             {
                 string date = reservationFromMail.이용시작일시.Value.AddDays(i).ToString("yyyy-MM-dd");
                 var price = (int)json[date]["prices"][0]["price"];
-                Console.WriteLine(price);
                 prices.Add(price);
             }
-            Console.WriteLine("일주일간 가격 출력");
             return prices.Distinct().ToList();
         }
 

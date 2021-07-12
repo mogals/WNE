@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WNE.Parsing;
+using System.Windows.Controls;
 
 namespace WNE.Ddnayo
 {
@@ -116,7 +117,7 @@ namespace WNE.Ddnayo
             });
         }
 
-        public async Task Login()
+        public async Task Login(RichTextBox richTextBox)
         {
             cookies = new CookieContainer();
             handler = new HttpClientHandler();
@@ -146,27 +147,26 @@ namespace WNE.Ddnayo
             //{
             //    Console.WriteLine(cookie.Name + ": " + cookie.Value);
             //}
-
-            Console.WriteLine("떠나요 로그인함");
+            richTextBox.AppendText($"\n떠나요 로그인함");
         }
 
-        public async Task Ready(Reservation reservationFromMail, Reservation reservationFromPartnerCenter)
+        public async Task Ready(Reservation reservationFromMail, Reservation reservationFromPartnerCenter, RichTextBox richTextBox)
         {
             try
             {
-                await Login();
+                await Login(richTextBox);
                 await Task.Delay(1000);
                 ReadyRequestContent readyRequestContent = new ReadyRequestContent
                 {
 
                     accommodationId = DdnayoInfo.accomodationId,
                     arrivalTime = string.Empty,
-                    flowInSaleDomainHomepage = GetFlowInSaleDomainHomepage(reservationFromMail.결제수단),
+                    flowInSaleDomainHomepage = reservationFromMail.유입경로떠나요기록인데실제내용은결제수단임,
                     isComplete = true,
                     isSmsAccountToReservedUser = false,
                     isSmsToAdministrator = reservationFromMail.테스트메일인가 ? false : true,
                     isSmsToReservedUser = reservationFromMail.테스트메일인가 ? false : true,
-                    managerMemo = GetManagerMemo(reservationFromMail, reservationFromPartnerCenter),
+                    managerMemo = reservationFromPartnerCenter.떠나요메모사항,
                     others = new List<string>(),
                     pickupPos = string.Empty,
                     pickupTime = string.Empty,
@@ -220,16 +220,14 @@ namespace WNE.Ddnayo
                 {
                     if (data.isSuccess.Value)
                     {
-                        Console.WriteLine($"등록성공 : 떠나요 예약번호 {data.reservationNo.Value}");
-                        Console.WriteLine("1초대기");
+                        richTextBox.AppendText($"\n떠나요 등록성공 : 떠나요 예약번호 {data.reservationNo.Value}");
                         await Task.Delay(1000);
-                        var ddnayoReservation = await Reservation(data.reservationNo.Value.ToString());
-                        await UserUpdate(ddnayoReservation, reservationFromMail, reservationFromPartnerCenter);
+                        var ddnayoReservation = await Reservation(data.reservationNo.Value.ToString(), richTextBox);
+                        await UserUpdate(ddnayoReservation, reservationFromMail, reservationFromPartnerCenter, richTextBox);
                     }
                     else
                     {
-                        Console.WriteLine(data.errorcode.HasValue);
-                        Console.WriteLine($"등록실패 : {data.errorMessage}");
+                        richTextBox.AppendText($"\n떠나요 등록실패 : {data.errorMessage}");
 
                         // 각 상황별로 어떻게 할 지 나중에 결정
                         switch (data.errorcode)
@@ -252,22 +250,21 @@ namespace WNE.Ddnayo
                 }
                 else  // 404, 503등 처리과정 중 오류 났을 때???
                 {
-                    Console.WriteLine("**");
-                    Console.WriteLine(errorString);
+                    richTextBox.AppendText("\n404, 503등 오류 발생?");
+                    richTextBox.AppendText($"\n{errorString}");
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine();
-                Console.WriteLine("예약 등록과정 중 예외 발생");
-                Console.WriteLine(e);
+                richTextBox.AppendText($"\n {e}");
+                richTextBox.AppendText("\n예약 등록 과정 중 얘외 발생");
             }
         }
 
 
-        public async Task<ManagementListResponseContent> ManagementList(Reservation reservationFromMail, Reservation reservationFromPartnerCenter, DateTime start, DateTime end, int size)
+        public async Task<ManagementListResponseContent> ManagementList(Reservation reservationFromMail, Reservation reservationFromPartnerCenter, DateTime start, DateTime end, int size, RichTextBox richTextBox)
         {
-            await Login();
+            await Login(richTextBox);
             await Task.Delay(1000);
 
             ManagementListRequestContent managementListRequestContent = new ManagementListRequestContent
@@ -292,8 +289,8 @@ namespace WNE.Ddnayo
                 stateCode = null
             };
 
-            Console.WriteLine($"전화번호 뒷자리 {(reservationFromMail.테스트메일인가 ? "0000" : reservationFromPartnerCenter.전화번호뒷자리 ?? string.Empty)}로 예약 검색 : ");
-
+            richTextBox.AppendText($"\n전화번호 뒷자리 {(reservationFromMail.테스트메일인가 ? "0000" : reservationFromPartnerCenter.전화번호뒷자리 ?? string.Empty)}로 예약 검색 : ");
+ 
             string requestUrl = $"https://partner.ddnayo.com/pms-api/accommodation/6850/reservation/management-list";
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, requestUrl);
             string jsonStringContent = JsonConvert.SerializeObject(managementListRequestContent);
@@ -304,22 +301,21 @@ namespace WNE.Ddnayo
             HttpResponseMessage response = await httpClient.SendAsync(requestMessage);
             string responseBody = await response.Content.ReadAsStringAsync();
 
-            Console.WriteLine(responseBody);
+            richTextBox.AppendText("\n{responseBody}");
 
             ManagementListResponseContent jsonResponse = JsonConvert.DeserializeObject<ManagementListResponseContent>(responseBody);
             return jsonResponse;
         }
 
-        public async Task<ReservationResponseContent> Reservation(string ddnayoReservationNo)
+        public async Task<ReservationResponseContent> Reservation(string ddnayoReservationNo, RichTextBox richTextBox)
         {
-            await Login();
+            await Login(richTextBox);
             await Task.Delay(1000);
 
             string requestUrl = $"https://partner.ddnayo.com/pms-api/accommodation/6850/reservation/{ddnayoReservationNo}";
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
             requestMessage.Headers.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.104 Safari/537.36");
 
-            Console.WriteLine("0.5초 정지 ##");
             await Task.Delay(500);
 
             HttpResponseMessage response = await httpClient.SendAsync(requestMessage);
@@ -333,23 +329,22 @@ namespace WNE.Ddnayo
             var failed = jsonResponse.failed.Value;
             if (success)  // 정상처리된 응답
             {
-                Console.WriteLine($"예약정보 읽어 옮 : 떠나요 예약번호 {data.reservationNo.Value}");
-                Console.WriteLine(responseBody);
-
+                richTextBox.AppendText($"\n예약정보 읽어 옮 : 떠나요 예약번호 {data.reservationNo.Value}");
+                richTextBox.AppendText($"{responseBody}");
             }
             else  // 404, 503등 처리과정 중 오류 났을 때?
             {
-                Console.WriteLine("##");
-                Console.WriteLine(errorString);
+                richTextBox.AppendText("##");
+                richTextBox.AppendText($"{errorString}");
             }
             return jsonResponse;
         }
 
-        public async Task Cancel(Reservation reservationFromMail, Reservation reservationFromPartnerCenter)
+        public async Task Cancel(Reservation reservationFromMail, Reservation reservationFromPartnerCenter, RichTextBox richTextBox)
         {
-            var managementList = await ManagementList(reservationFromMail, reservationFromPartnerCenter, DateTime.Now.AddMonths(-1), DateTime.Now, 50);
+            var managementList = await ManagementList(reservationFromMail, reservationFromPartnerCenter, DateTime.Now.AddMonths(-1), DateTime.Now, 50, richTextBox);
 
-            await Login();
+            await Login(richTextBox);
             await Task.Delay(1000);
 
             var success = managementList.success.Value;
@@ -370,8 +365,8 @@ namespace WNE.Ddnayo
                 }
                 if (네이버예약과일치하는항목 is null)
                 {
-                    Console.WriteLine("취소하고자 하는 예약을 발견하지 못 함");
-                    Console.WriteLine("데이터 확인 또는 검색로직 수정 필요");
+                    richTextBox.AppendText("\n취소하고자 하는 예약을 발견하지 못 함");
+                    richTextBox.AppendText("\n데이터 확인 또는 검색로직 수정 필요");
                     return;
                 }
 
@@ -386,12 +381,10 @@ namespace WNE.Ddnayo
                 };
 
                 string requestUrl = $"https://partner.ddnayo.com/pms-api/accommodation/6850/reservation/{네이버예약과일치하는항목.reservationNo}/cancel";
-                Console.WriteLine("취소URL");
-                Console.WriteLine(requestUrl);
+
                 string jsonStringContent = JsonConvert.SerializeObject(cancelRequestContent);
-                Console.WriteLine();
-                Console.WriteLine("취소용 json출력");
-                Console.WriteLine(jsonStringContent);
+                richTextBox.AppendText("\n취소용 json출력");
+                richTextBox.AppendText($"\n{jsonStringContent}");
 
                 HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, requestUrl);
                 StringContent stringContent = new StringContent(jsonStringContent, Encoding.UTF8, "application/json");
@@ -405,22 +398,21 @@ namespace WNE.Ddnayo
                 var jsonResponse = JsonConvert.DeserializeObject<CancelResponseContent>(responseBody);
                 if (jsonResponse.success.Value)
                 {
-                    Console.WriteLine("취소 성공");
+                    richTextBox.AppendText("\n취소 성공");
                 }
                 else
                 {
-                    Console.WriteLine("취소 실패");
-                    Console.WriteLine(jsonResponse.errorString);
+                    richTextBox.AppendText("\n취소 실패");
                 }
             }
             else  // 404, 503등 처리과정 중 오류 났을 때?
             {
-                Console.WriteLine("취소 실패 ##");
-                Console.WriteLine("전화번호 뒷자리 검색 결과 없음??");
-                Console.WriteLine(errorString);
+                richTextBox.AppendText("\n취소 실패 ##");
+                richTextBox.AppendText("\n전화번호 뒷자리 검색 결과 없음??");
+                richTextBox.AppendText($"\n{errorString}");
             }
         }
-        public async Task UserUpdate(ReservationResponseContent ddnayoReservation, Reservation reservationFromMail, Reservation reservationFromPartnerCenter)
+        public async Task UserUpdate(ReservationResponseContent ddnayoReservation, Reservation reservationFromMail, Reservation reservationFromPartnerCenter, RichTextBox richTextBox)
         {
             // 요청 처리
             UserUpdateRequestContent userUpdateRequestContent = new UserUpdateRequestContent()
@@ -443,10 +435,11 @@ namespace WNE.Ddnayo
                 userId = ddnayoReservation.data.userId
             };
 
+
             string requestUrl = $"https://partner.ddnayo.com/pms-api/accommodation/6850/reservation/user/update";
             string jsonStringContent = JsonConvert.SerializeObject(userUpdateRequestContent);
-            Console.WriteLine("업데이트용 json출력");
-            Console.WriteLine(jsonStringContent);
+            richTextBox.AppendText("\n업데이트용 json출력");
+            richTextBox.AppendText($"\n{jsonStringContent}");
             HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Post, requestUrl);
             StringContent stringContent = new StringContent(jsonStringContent, Encoding.UTF8, "application/json");
             requestMessage.Content = stringContent;
@@ -455,7 +448,6 @@ namespace WNE.Ddnayo
             // RESP API 예외처리 및 재시도 패턴 구현 필요함!
             HttpResponseMessage response = await httpClient.SendAsync(requestMessage);
 
-            Console.WriteLine("1초 정지");
             await Task.Delay(1000);
             // 응답 처리 => 정장적인 응답이 왔다고 가정
             string responseBody = await response.Content.ReadAsStringAsync();
@@ -467,90 +459,32 @@ namespace WNE.Ddnayo
             var failed = jsonResponse.failed.Value;
             if (success)  // 정상처리된 응답
             {
-                Console.WriteLine("업데이트 성공");
+                richTextBox.AppendText($"\n업데이트 성공");
             }
             else
             {
-                Console.WriteLine("업데이트 실패");
-                Console.WriteLine(errorString);
-                Console.WriteLine("업데이트 실패 문자 출력 완료");
+                richTextBox.AppendText($"\n업데이트 실패");
+                richTextBox.AppendText($"\n{errorString}");
+                richTextBox.AppendText($"\n업데이트 실패 문자 출력 완료");
             }
 
             await Task.Delay(1000);
         }
-        public async Task HideUpdate()
+        public async Task HideUpdate(RichTextBox richTextBox)
         {
-            await Login();
+            await Login(richTextBox);
             await Task.Delay(1000);
         }
-        public async Task CancelPenalty()
+        public async Task CancelPenalty(RichTextBox richTextBox)
         {
-            await Login();
+            await Login(richTextBox);
             await Task.Delay(1000);
         }
-        public async Task PriceCalculator()
+        public async Task PriceCalculator(RichTextBox richTextBox)
         {
-            await Login();
+            await Login(richTextBox);
             await Task.Delay(1000);
         }
-
-        public string GetFlowInSaleDomainHomepage(string 결제수단)
-        {
-            switch (결제수단)
-            {
-                case "신용카드":
-                    return "네이버 카드결제";
-                    break;
-                case "무통장입금":
-                    return $"네이버 {결제수단}";
-                    break;
-                case "포인트결제":
-                    return $"네이버 {결제수단}";
-                    break;
-                case "계좌이체":
-                    return $"네이버 {결제수단}";
-                    break;
-                default:
-                    return $"{결제수단} : 예상하지 못한 결제수단 발생";
-                    break;
-            }
-        }
-        private string GetManagerMemo(Reservation reservationFromMail, Reservation reservationFromPartnerCenter)
-        {
-            string managerMemo = $"{reservationFromMail.예약신청일시.Value.ToString("M월 d일")} {GetFlowInSaleDomainHomepage(reservationFromMail.결제수단)}{Environment.NewLine}" +
-                              $"{reservationFromPartnerCenter.예약자명}{Environment.NewLine}" +
-                              $"{reservationFromMail.이용시작일시.Value.ToString("M월 d일 dddd")} {reservationFromMail.객실} {reservationFromMail.이용일수}박{reservationFromMail.이용일수 + 1}일 {reservationFromMail.메모용객실이용금액}{Environment.NewLine}" +
-                              $"{string.Join(Environment.NewLine, reservationFromMail.메모용옵션들)}{Environment.NewLine}";
-            if (reservationFromPartnerCenter.지난예약들.Count.Equals(0))
-            {
-                reservationFromPartnerCenter.떠나요메모사항 = managerMemo;
-                reservationFromPartnerCenter.엑셀메모사항 = "신규예약";
-            }
-            else
-            {
-                var pastReservationsMemo = $"{reservationFromPartnerCenter.지난예약들.Count}회 방문 : ";
-                var newMemoLineToAdd = pastReservationsMemo;
-                foreach (var 지난예약 in reservationFromPartnerCenter.지난예약들)
-                {
-                    var 객실명 = reservationFromPartnerCenter.객실;
-                    var 이용시작날짜 = reservationFromPartnerCenter.이용시작일시.Value.ToString("yy/M/d");
-                    var newMemoToAdd = $"{객실명}({이용시작날짜})";
-                    if ((newMemoLineToAdd + newMemoToAdd).Length < 20)
-                    {
-                        newMemoLineToAdd += newMemoToAdd;
-                    }
-                    else
-                    {
-                        pastReservationsMemo += newMemoLineToAdd;
-                        newMemoLineToAdd = Environment.NewLine + newMemoToAdd;
-                    }
-                }
-                pastReservationsMemo += newMemoLineToAdd;
-
-                reservationFromPartnerCenter.떠나요메모사항 = managerMemo + pastReservationsMemo;
-                reservationFromPartnerCenter.엑셀메모사항 = pastReservationsMemo;
-            }
-            return reservationFromPartnerCenter.떠나요메모사항;
-        }
+        
     }
 }

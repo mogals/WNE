@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Controls;
+using System.Xml;
 
 namespace WNE.Parsing
 {
@@ -47,9 +49,9 @@ namespace WNE.Parsing
         public string 이메일;
         public string 예약유형;
         public string 유입경로 = string.Empty; // 유입경로가 공백인 상태로 보내지면 떠나요에서 admin으로 자동 설정됨.
-        public string 유입경로ToDdnayo;
+        public string 유입경로떠나요기록인데실제내용은결제수단임;
         public string 떠나요메모사항;
-        public string 엑셀메모사항;
+        public string 엑셀방문횟수;
         public List<string> 메모용옵션들;
         public List<옵션> 옵션들 = new List<옵션>();
         public List<PastReservation> 지난예약들 = new List<PastReservation>();
@@ -57,10 +59,9 @@ namespace WNE.Parsing
         public string 예약자번호;
 
         public Reservation() { }
-        public Reservation(string partnerCenterMessage)
+        public Reservation(string partnerCenterMessage, RichTextBox richTextBox)
         {
-            Console.WriteLine();
-            Console.WriteLine("======= 네이버 파트너센터 분석 중 =========");
+            richTextBox.AppendText($"\n@ 네이버 파트너센터 분석 중 @");
             try
             {
                 var text = partnerCenterMessage?.Replace($"예약자 취소 사유{Environment.NewLine}", "예약자취소사유 ")
@@ -88,8 +89,8 @@ namespace WNE.Parsing
                     throw new NotReservationMailException();
                 }
 
+                richTextBox.AppendText($"\n예약상태 {예약상태.ToString()}");
                 var textBodyToArray = text.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList();
-
                 foreach (var item in textBodyToArray)
                 {
                     string 제목 = string.Empty;
@@ -109,7 +110,7 @@ namespace WNE.Parsing
                     switch (제목)
                     {
                         case "예약자":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             var 님제거성명 = 내용.Replace("님", string.Empty).Trim();
                             string 성명;
                             if (IsHangulOrSpace(님제거성명))
@@ -117,47 +118,44 @@ namespace WNE.Parsing
                                 var 성 = 님제거성명[0];
                                 var 명 = 님제거성명.Substring(1).Trim();
                                 성명 = $"{성} {명}";
-                                Console.ForegroundColor = ConsoleColor.Blue;
-                                Console.WriteLine($"예약자명에서 성 띄어씌기 : {성명}");
-                                Console.ForegroundColor = ConsoleColor.White;
+                                richTextBox.AppendText($"\n예약자명에서 성 띄어쓰기 : {성명}");
                             }
                             else
                             {
                                 성명 = 님제거성명;
                             }
                             예약자명 = 성명;
+                            richTextBox.AppendText($"\n님제거 예약자명 : {예약자명}");
                             break;
                         case nameof(예약자번호):
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             예약자번호 = 내용.Trim();
                             break;
                         case "전화번호":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             전화번호 = 내용;
                             var 전화번호분리 = 전화번호.Split("-");
                             전화번호식별번호 = 전화번호분리[0].Trim();
                             전화번호앞자리 = 전화번호분리[1].Trim();
                             전화번호뒷자리 = 전화번호분리[2].Trim();
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"전화번호 식별번호 : {전화번호식별번호}");
-                            Console.WriteLine($"전화번호 앞자리 : {전화번호앞자리}");
-                            Console.WriteLine($"전화번호 뒷자리 : {전화번호뒷자리}");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n전화번호 식별번호 : {전화번호식별번호}");
+                            richTextBox.AppendText($"\n전화번호 앞자리 : {전화번호앞자리}");
+                            richTextBox.AppendText($"\n전화번호 뒷자리 : {전화번호뒷자리}");
                             break;
                         case "예약번호":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             예약번호네이버 = 내용;
                             break;
                         case "예약유형":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             예약유형 = 내용;
                             break;
                         case "이메일":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             이메일 = 내용;
                             break;
                         case "객실":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             객실raw = 내용;
                             var 객실정리 = 객실raw.Replace(" ", string.Empty)
                                               .Replace("~", string.Empty)
@@ -174,17 +172,13 @@ namespace WNE.Parsing
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.WriteLine("객실정보에서 객실 인원수 추출 불가 => 0으로 처리");
-                                Console.ForegroundColor = ConsoleColor.White;
+                                richTextBox.AppendText($"\n객실정보에서 객실 인원수 추출 불가 => 0으로 처리");
                             }
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"객실 추출 : {객실}");
-                            Console.WriteLine($"객실 인원수 추출 : {인원수}");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n객실 추출 : {객실}");
+                            richTextBox.AppendText($"\n객실 인원수 추출 : {인원수}");
                             break;
                         case "이용기간":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             이용기간 = 내용;
                             var 이용기간분리 = 이용기간.Replace(".(", "~")
                                                      .Replace(")", "~")
@@ -193,39 +187,37 @@ namespace WNE.Parsing
                             이용시작일시 = DateTime.ParseExact(이용기간분리[0], "yyyy.M.d", null);
                             이용종료일시 = DateTime.ParseExact(이용기간분리[2], "yyyy.M.d", null);
                             이용일수 = (이용종료일시.Value - 이용시작일시.Value).Days;
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"이용시작일시 추출 : {이용시작일시}");
-                            Console.WriteLine($"이용종료일시 추출 : {이용종료일시}");
-                            Console.WriteLine($"이용일수 추출 : {이용일수}박 {이용일수 + 1}일");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n이용시작일시 추출 : {이용시작일시}");
+                            richTextBox.AppendText($"\n이용종료일시 추출 : {이용종료일시}");
+                            richTextBox.AppendText($"\n이용일수 추출 : {이용일수}박 {이용일수+1}일");
                             break;
                         case "수량":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             수량 = int.Parse(내용);
                             break;
                         case "옵션":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             옵션 = 내용;
                             // 이 부분은 다시 작성해야 함
                             break;
                         case "유입경로":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             유입경로 = 내용;
                             break;
                         case "결제상태":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             결제상태 = 내용;
                             break;
                         case "NPay주문":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             NPay주문 = 내용;
                             break;
                         case "결제수단":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             결제수단 = 내용;
                             break;
                         case "결제금액":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             결제금액raw = 내용;
                             var 결제금액string = 결제금액raw.Replace(",", string.Empty)
                                                         .Replace("원", string.Empty)
@@ -234,13 +226,11 @@ namespace WNE.Parsing
 
                             메모용결제금액 = PriceTransform(결제금액string);
 
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"결제금액 추출 : {결제금액}");
-                            Console.WriteLine($"메모용 결제금액 : {메모용결제금액}");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n결제금액 추출 : {결제금액}");
+                            richTextBox.AppendText($"\n메모용 결제금액 : {메모용결제금액}");
                             break;
                         case "환불금액":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             var 환불금액분리 = 내용.Split("(", StringSplitOptions.RemoveEmptyEntries);
                             환불금액 = 환불금액분리[0].Replace(",", string.Empty)
                                                     .Replace("원", string.Empty)
@@ -248,24 +238,20 @@ namespace WNE.Parsing
                             환불수수료율 = 환불금액분리[1].Replace(")", string.Empty)
                                                         .Replace("%", string.Empty)
                                                         .Trim();
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"환불금액 추출 : {환불금액}");
-                            Console.WriteLine($"환불수수료율 추출 : {환불수수료율}");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n환불금액 추출 : {환불금액}");
+                            richTextBox.AppendText($"\n환불수수료율 추출 : {환불수수료율}");
                             break;
                         case "취소수수료":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             환불수수료 = 내용.Replace("원", string.Empty);
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"취소수수료추출 : {환불수수료}");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n환불수수료 추출 : {환불수수료}");
                             break;
                         case "예약자취소사유":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             취소사유 = 내용;
                             break;
                         case "요청사항":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             요청사항 = 내용;
                             break;
                         default:
@@ -277,34 +263,33 @@ namespace WNE.Parsing
                     예약상태 = ReservationState.소액테스트;
                 }
             }
-            catch (NotReservationMailException)
+            catch (NotReservationMailException e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("파트너센터에서 자료 조회 중 예약 형식에 맞지 않는 자료 발견");
-                Console.WriteLine($"{partnerCenterMessage}");
+                richTextBox.AppendText($"\n{e}");
+                richTextBox.AppendText($"\n파트너센터에서 자료 조회 중 예약 형식에 맞지 않는 자료 발견");
+                richTextBox.AppendText($"\n예외발생 예약 텍스트 : {partnerCenterMessage}");
                 예약상태 = ReservationState.예약메일아님;
-                Console.ForegroundColor = ConsoleColor.White;
             }
             catch (FormatException e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e);
-                Console.ForegroundColor = ConsoleColor.White;
+                richTextBox.AppendText($"\n{e}");
+                richTextBox.AppendText($"\n파트너센터에서 자료 조회 중 예약 형식에 맞지 않는 자료 발견");
+                richTextBox.AppendText($"\n예외발생 예약 텍스트 : {partnerCenterMessage}");
+                예약상태 = ReservationState.예약메일아님;
             }
             catch (Exception e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e);
-                Console.WriteLine("파트너센터에서 자료 조회 중 예상치 못 한 예외 발생 => 개발자에게 문의해 주세요.");
-                Console.WriteLine($"예외발생 메일 : {partnerCenterMessage}");
-                Console.ForegroundColor = ConsoleColor.White;
+                richTextBox.AppendText($"\n{e}");
+                richTextBox.AppendText($"\n파트너센터에서 자료 조회 중 알 수 없는 오류 발생 => 오류메시지를 개발자에게 보내주세요.");
+                richTextBox.AppendText($"\n예외발생 예약 텍스트 : {partnerCenterMessage}");
             }
         }
-        public Reservation(MimeMessage mimeMessage)
+        public Reservation(MimeMessage mimeMessage, RichTextBox richTextBox, uint uniqueId)
         {
-            Console.WriteLine();
-            Console.WriteLine("======= 메일 분석 중 =========");
-            Console.WriteLine(mimeMessage.Date);
+            richTextBox.AppendText($"\n################################################################");
+            richTextBox.AppendText($"\n@ 메일 분석 중 @");
+            richTextBox.AppendText($"\nUniqueId : {uniqueId}");
+            richTextBox.AppendText($"\n{mimeMessage.Date} : {mimeMessage.Subject}");
             string textBody = string.Empty;
             try
             {
@@ -333,6 +318,7 @@ namespace WNE.Parsing
                     throw new NotReservationMailException();
                 }
 
+                richTextBox.AppendText($"\n예약상태 {예약상태.ToString()}");
                 var textBodyToArray = textBody.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList();
                 foreach (var item in textBodyToArray)
                 {
@@ -354,7 +340,7 @@ namespace WNE.Parsing
                     switch (제목)
                     {
                         case "예약자명":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             var 님제거성명 = 내용.Replace("님", string.Empty).Trim();
                             string 성명;
                             if (IsHangulOrSpace(님제거성명))
@@ -362,41 +348,33 @@ namespace WNE.Parsing
                                 var 성 = 님제거성명[0];
                                 var 명 = 님제거성명.Substring(1).Trim();
                                 성명 = $"{성} {명}";
-                                Console.ForegroundColor = ConsoleColor.Blue;
-                                Console.WriteLine($"예약자명에서 성 띄어씌기 : {성명}");
-                                Console.ForegroundColor = ConsoleColor.White;
+                                richTextBox.AppendText($"\n예약자명에서 성 띄어쓰기 : {성명}");
                             }
                             else
                             {
                                 성명 = 님제거성명;
                             }
                             예약자명 = 성명;
-
-                            Console.WriteLine(예약자명);
-
+                            richTextBox.AppendText($"\n님제거 예약자명 : {예약자명}");
                             break;
                         case "예약신청일시":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             string 예약신청일시string = 내용;
                             예약신청일시 = DateTime.ParseExact(예약신청일시string, "yyyy.MM.dd. HH:mm:ss", null);
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"예약신청일시 추출 결과 : {예약신청일시}");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n예약신청일시 추출 결과 : {예약신청일시}");
                             break;
                         case "예약취소일시":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             string 예약취소일시string = 내용.Replace(".", string.Empty);
                             예약취소일시 = DateTime.ParseExact(예약취소일시string, "yyyyMMdd HH:mm:ss", null);
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"예약취소일시 추출 결과 : {예약취소일시}");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n이용취소일시 추출 결과 : {예약취소일시}");
                             break;
                         case "예약번호":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             예약번호네이버 = 내용.Split(" ")[0];
                             break;
                         case "예약상품":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             예약상품 = 내용;
                             var 예약상품정리 = 예약상품.Replace(" ", string.Empty)
                                                      .Replace("~", string.Empty)
@@ -413,17 +391,13 @@ namespace WNE.Parsing
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.WriteLine("예약상품에서 객실 인원수 추출 불가 => 0으로 처리");
-                                Console.ForegroundColor = ConsoleColor.White;
+                                richTextBox.AppendText($"\n예약상품에서 객실 인원수 추출 불가 => 0으로 처리");
                             }
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"객실 추출 : {객실}");
-                            Console.WriteLine($"객실 인원수 추출 : {인원수}");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n객실 추출 : {객실}");
+                            richTextBox.AppendText($"\n객실 인원수 추출 : {인원수}");
                             break;
                         case "이용일시":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             이용기간 = 내용;
                             // 분리해야 할 일시 문자열 예시 ==> 이용일시 2021.05.27.(목)~2021.05.28.(금) (1박 2일)
                             var 이용일시분리 = 이용기간.Replace("(", "~")
@@ -433,18 +407,16 @@ namespace WNE.Parsing
                             이용시작일시 = DateTime.ParseExact(이용일시분리[0], "yyyyMMdd", null);
                             이용종료일시 = DateTime.ParseExact(이용일시분리[2], "yyyyMMdd", null);
                             이용일수 = (이용종료일시.Value - 이용시작일시.Value).Days;
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"이용시작일시 추출 : {이용시작일시}");
-                            Console.WriteLine($"이용종료일시 추출 : {이용종료일시}");
-                            Console.WriteLine($"이용일수 추출 : {이용일수}박 {이용일수 + 1}일");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n이용시작일시 추출 : {이용시작일시}");
+                            richTextBox.AppendText($"\n이용종료일시 추출: {이용종료일시}");
+                            richTextBox.AppendText($"\n이용일수 추출 : {이용일수}박 {이용일수+1}일");
                             break;
                         case "결제상태":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             결제상태 = 내용;
                             break;
                         case "결제수단":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             결제수단 = 내용;
                             break;
                         case "결제금액":
@@ -454,7 +426,7 @@ namespace WNE.Parsing
                             // 202호(2인실)(1) 160,000원 + 바베큐 A 셋트(2) 80,000원 = 240,000원
                             // 사과집(1) 380,000원 + 조식(딜리버리 서비스)(3) 49,500원 = 429,500원
                             // 사과집(1) 280,000원 + 바베큐 A 셋트(2) 80,000원 + 조식 (딜리버리 서비스)(2) 33,000원 + 고기 추가 (A타입)(1) 15,000원 + 고기 추가 (B타입)(1) 22,000원 + 쉐프조리 서비스(1) 0원 = 430,000원 
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             결제금액raw = 내용;
                             var 결제금액분리 = 결제금액raw.Split('=');
 
@@ -633,34 +605,29 @@ namespace WNE.Parsing
                                                             .Replace("원", string.Empty)
                                                             .Trim();
                             결제금액 = int.Parse(결제금액string);
-
                             메모용결제금액 = PriceTransform(결제금액string);
+                            richTextBox.AppendText($"\n결제금액 추출 : {결제금액}");
+                            richTextBox.AppendText($"\n메모용 결제금액 : {메모용결제금액}");
 
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"결제금액 추출 : {결제금액}");
-                            Console.WriteLine($"메모용 결제금액 : {메모용결제금액}");
-                            Console.ForegroundColor = ConsoleColor.White;
                             break;
                         case "환불금액":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             환불금액 = 내용.Replace(",", string.Empty).Replace("원", string.Empty).Trim();
                             break;
                         case "환불수수료":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             var 환불수수료분리 = 내용.Replace("(", "~").Replace(" ", "~").Split("~", StringSplitOptions.RemoveEmptyEntries);
                             환불수수료 = 환불수수료분리[0].Replace("원", string.Empty).Trim();
                             환불수수료율 = 환불수수료분리[2].Replace("%", string.Empty).Trim();
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"환불수수료 추출 : {환불수수료}");
-                            Console.WriteLine($"환불수수료율 추출 : {환불수수료율}");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n환불수수료 추출 : {환불수수료}");
+                            richTextBox.AppendText($"\n환불수수료율 추출 : {환불수수료율}");
                             break;
                         case "요청사항":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             요청사항 = 내용;
                             break;
                         case "취소사유":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             취소사유 = 내용.Replace("-", string.Empty);
                             break;
                         default:
@@ -671,29 +638,45 @@ namespace WNE.Parsing
                 {
                     예약상태 = ReservationState.소액테스트;
                 }
+                유입경로떠나요기록인데실제내용은결제수단임 = GetFlowInSaleDomainHomepage(결제수단);
             }
             catch (NotReservationMailException)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("예약메일 형식에 맞지 않음");
-                Console.WriteLine($"예외발생 메일 일시 : {mimeMessage?.Date}");
+                richTextBox.AppendText($"\n예약메일 형식이 아님");
                 예약상태 = ReservationState.예약메일아님;
-                Console.ForegroundColor = ConsoleColor.White;
             }
             catch (FormatException e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e);
-                Console.WriteLine($"예외발생 메일 : {mimeMessage?.Date}");
-                Console.ForegroundColor = ConsoleColor.White;
+                richTextBox.AppendText($"\n예외발생 메일 : {mimeMessage?.Date}");
             }
             catch (Exception e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e);
-                Console.WriteLine("예상치 못 한 예외 발생 => 개발자에게 문의해 주세요.");
-                Console.WriteLine($"예외발생 메일 : {mimeMessage?.Date}");
-                Console.ForegroundColor = ConsoleColor.White;
+                richTextBox.AppendText($"\n{e}");
+                richTextBox.AppendText($"\n알 수 없는 오류 발생 => 오류메시지를 개발자에게 보내주세요.");
+                richTextBox.AppendText($"\n예외발생 메일 : {mimeMessage?.Date}");
+            }
+        }
+
+        // 메일의 결제수단을 변형해서 떠나요의 유입경로에 기록
+        public string GetFlowInSaleDomainHomepage(string 결제수단)
+        {
+            switch (결제수단)
+            {
+                case "신용카드":
+                    return "네이버 카드결제";
+                    break;
+                case "무통장입금":
+                    return $"네이버 {결제수단}";
+                    break;
+                case "포인트결제":
+                    return $"네이버 {결제수단}";
+                    break;
+                case "계좌이체":
+                    return $"네이버 {결제수단}";
+                    break;
+                default:
+                    return $"{결제수단} : 예상하지 못한 결제수단 발생";
+                    break;
             }
         }
 

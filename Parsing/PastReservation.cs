@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Controls;
 
 namespace WNE.Parsing
 {
@@ -23,10 +24,11 @@ namespace WNE.Parsing
         public string 요청사항;
 
         public PastReservation() { }
-        public PastReservation(string partnerCenterMessage)
+        public PastReservation(string partnerCenterMessage, RichTextBox richTextBox, int index)
         {
-            Console.WriteLine();
-            Console.WriteLine("======= 지난예약 분석 중 =========");
+            richTextBox.AppendText($"\n\n@ 지난 예약 텍스트 추출 ({index + 1}) @");
+            richTextBox.AppendText($"\n{partnerCenterMessage}");
+            richTextBox.AppendText($"\n\n@ 지난 예약 분석 중 ({index+1}) @");
             try
             {
                 var text = partnerCenterMessage;
@@ -48,8 +50,12 @@ namespace WNE.Parsing
                     throw new NotReservationMailException();
                 }
 
-                var textBodyToArray = text.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList();
-
+                var textBodyToArray = text.Replace("예약번호", "예약번호 ")
+                                          .Replace($"확정{Environment.NewLine}", "확정 ")
+                                          .Replace($"취소{Environment.NewLine}", "취소 ")
+                                          .Replace($"완료{Environment.NewLine}", "완료 ")
+                                          .Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList();
+                richTextBox.AppendText($"\n예약상태 : {예약상태.ToString()}");
                 foreach (var item in textBodyToArray)
                 {
                     string 제목 = string.Empty;
@@ -58,9 +64,9 @@ namespace WNE.Parsing
                     {
                         if (char.IsWhiteSpace(jtem))
                         {
-                            var index = item.IndexOf(jtem);
-                            제목 = item.Substring(0, index).Trim();
-                            내용 = item.Substring(index + 1, item.Length - index - 1).Trim();
+                            var jndex = item.IndexOf(jtem);
+                            제목 = item.Substring(0, jndex).Trim();
+                            내용 = item.Substring(jndex + 1, item.Length - jndex - 1).Trim();
                             break;
                         }
                     }
@@ -69,13 +75,13 @@ namespace WNE.Parsing
                     switch (제목)
                     {
                         case "예약번호":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             예약번호네이버 = 내용;
                             break;
                         case "확정":
                         case "취소":
                         case "완료":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             객실raw = 내용;
                             var 객실정리 = 객실raw.Replace(" ", string.Empty)
                                                .Replace("(스위트룸)", string.Empty)
@@ -91,17 +97,13 @@ namespace WNE.Parsing
                             }
                             catch (IndexOutOfRangeException)
                             {
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.WriteLine("객실정보에서 객실 인원수 추출 불가 => 0으로 처리");
-                                Console.ForegroundColor = ConsoleColor.White;
+                                richTextBox.AppendText($"\n객실정보에서 객실 인원수 추출 불가 => 0으로 처리");
                             }
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"객실 추출 : {객실}");
-                            Console.WriteLine($"객실 인원수 추출 : {인원수}");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n객실 추출 : {객실}");
+                            richTextBox.AppendText($"\n객실 인원수 추출 : {인원수}");
                             break;
                         case "이용기간":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             이용기간 = 내용;
                             var 이용기간분리 = 이용기간.Replace(" ", string.Empty)
                                                      .Replace(".(", "~")
@@ -111,18 +113,16 @@ namespace WNE.Parsing
                             이용시작일시 = DateTime.ParseExact(이용기간분리[0], "yyyy.M.d", null);
                             이용종료일시 = DateTime.ParseExact(이용기간분리[2], "yyyy.M.d", null);
                             이용일수 = (이용종료일시.Value - 이용시작일시.Value).Days;
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine($"이용시작일시 추출 : {이용시작일시}");
-                            Console.WriteLine($"이용종료일시 추출 : {이용종료일시}");
-                            Console.WriteLine($"이용일수 추출 : {이용일수}박 {이용일수 + 1}일");
-                            Console.ForegroundColor = ConsoleColor.White;
+                            richTextBox.AppendText($"\n이용시작일시 추출 : {이용시작일시}");
+                            richTextBox.AppendText($"\n이용종료일시 추출 : {이용종료일시}");
+                            richTextBox.AppendText($"\n이용일수 추출 : {이용일수}박 {이용일수+1}일");
                             break;
                         case "수량":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             수량 = int.Parse(내용);
                             break;
                         case "요청사항":
-                            Console.WriteLine($"{제목} : {내용}");
+                            richTextBox.AppendText($"\n{제목} : {내용}");
                             요청사항 = 내용.Trim();
                             break;
                         default:
@@ -132,25 +132,19 @@ namespace WNE.Parsing
             }
             catch (NotReservationMailException)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("파트너센터에서 자료 조회 중 예약 형식에 맞지 않는 자료 발견");
-                Console.WriteLine($"{partnerCenterMessage}");
+                richTextBox.AppendText($"\n{partnerCenterMessage}");
+                richTextBox.AppendText($"\n파트너센터 지난 예약 조회 중 형식에 맞지 않는 자료 발견");
                 예약상태 = ReservationState.예약메일아님;
-                Console.ForegroundColor = ConsoleColor.White;
             }
             catch (FormatException e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e);
-                Console.ForegroundColor = ConsoleColor.White;
+                richTextBox.AppendText($"\n{e}");
             }
             catch (Exception e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(e);
-                Console.WriteLine("파트너센터 지난내역 자료 조회 중 예상치 못 한 예외 발생 => 개발자에게 문의해 주세요.");
-                Console.WriteLine($"예외발생 메일 : {partnerCenterMessage}");
-                Console.ForegroundColor = ConsoleColor.White;
+                richTextBox.AppendText($"\n{e}");
+                richTextBox.AppendText($"\n파트너센터 지난 예약 자료 조회 중 예상치 못 한 예외 발생 => 개발자에게 문의해 주세요.");
+                richTextBox.AppendText($"예외발생 예약 : {partnerCenterMessage}");
             }
         }
     }

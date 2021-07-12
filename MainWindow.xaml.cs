@@ -38,12 +38,12 @@ namespace WNE
             dialog.IsFolderPicker = true;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                richTextBox.AppendText($"\n[{dialog.FileName}] 에 엑셀파일을 저장합니다.");
+                richTextBox.AppendText($"\n[{dialog.FileName}]에 엑셀파일을 저장합니다.");
                 saveFolder = dialog.FileName;
             }
 
             setting = YamlFileController.Instance.DeSerialize<Setting>("설정.yml");
-            richTextBox.AppendText(setting.테스트예약표기문자);
+            richTextBox.AppendText($"\n{setting.테스트예약표기문자}");
         }
 
         private void start_Click(object sender, RoutedEventArgs e)
@@ -77,8 +77,6 @@ namespace WNE
             idleClient.RunAsync();
 
         }
-
-        //bool leftPanelVisible = true;
 
         private void richTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {

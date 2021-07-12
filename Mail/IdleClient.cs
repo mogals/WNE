@@ -25,7 +25,6 @@ namespace ImapIdle
         public DdnayoClient ddnayoClient;
 
         public Info _info = new Info();
-        List<IMessageSummary> messages;
         CancellationTokenSource cancel;
         CancellationTokenSource done;
         bool messagesArrived;
@@ -37,15 +36,14 @@ namespace ImapIdle
         public ChromeDriver chromeDriver;
         public NetworkCredential credentials;
         public ProtocolLogger logger;
-        public RichTextBox _richTextBox;
+        public RichTextBox richTextBox;
         public MediaPlayer mediaPlayer;
 
-        public IdleClient(Info info, RichTextBox richTextBox)
+        public IdleClient(Info info, RichTextBox _richTextBox)
         {
             _info = info;
-            _richTextBox = richTextBox;
+            richTextBox = _richTextBox;
             client = new ImapClient();
-            messages = new List<IMessageSummary>();
             cancel = new CancellationTokenSource();
             mediaPlayer = new MediaPlayer();
 
@@ -58,11 +56,13 @@ namespace ImapIdle
             try
             {
                 ReconnectAsync();
+                richTextBox.AppendText("\n기존 메일 처리 중(받은편지함에서 별표 없는 메일만 찾아서 처리합니다.");
                 await ProcessMessagesAsync();
+                await ProcessMessagesAsync(); // 두 번 처리
             }
             catch (OperationCanceledException e)
             {
-                Console.WriteLine(e);
+                richTextBox.AppendText($"{e}");
                 await client.DisconnectAsync(true);
                 return;
             }
@@ -70,7 +70,9 @@ namespace ImapIdle
             inbox.CountChanged += OnCountChanged;
             inbox.MessageExpunged += OnMessageExpunged;
             inbox.MessageFlagsChanged += OnMessageFlagsChanged;
+            richTextBox.AppendText("\n*");
             await IdleAsync();
+            richTextBox.AppendText("\n****");
             inbox.MessageFlagsChanged -= OnMessageFlagsChanged;
             inbox.MessageExpunged -= OnMessageExpunged;
             inbox.CountChanged -= OnCountChanged;
@@ -82,58 +84,34 @@ namespace ImapIdle
             {
                 client.Connect(_info.mailHost, _info.imapMailPort, _info.SslOptions, cancel.Token);
             }
-
-
             if (!client.IsAuthenticated)
             {
                 credentials = new NetworkCredential(_info.mailUsername, _info.mailPassword);
                 client.Authenticate(credentials, cancel.Token);
                 client.Inbox.Open(FolderAccess.ReadWrite, cancel.Token);
-                _richTextBox.AppendText("\n");
-                var fetchedMessages = client.Inbox.Search(SearchQuery.Not(SearchQuery.HasGMailLabel(@"\Starred")));
-                _richTextBox.AppendText(fetchedMessages.Count.ToString());
-                client.Inbox.SetLabels(new UniqueId(fetchedMessages.Last().Id), new String[] { @"\Starred" }, true);
-
-                _richTextBox.AppendText("메일 접속함");
             }
+            richTextBox.AppendText("\n메일 접속 및 로그인함");
         }
 
         async Task ProcessMessagesAsync()
         {
-            IList<IMessageSummary> fetched;
+            await Task.Delay(100);
+            IList<UniqueId> starred;
+            int retry = 0;
             do
             {
                 try
                 {
-                    int startIndex = messages.Count;
-                    fetched = client.Inbox.Fetch(startIndex, -1, MessageSummaryItems.Full | MessageSummaryItems.UniqueId, cancel.Token);
-                    
-                    break;
-                }
-                catch (ImapProtocolException e)
-                {
-                    Console.WriteLine(e);
-                    ReconnectAsync();
-                }
-                catch (IOException e)
-                {
-                    Console.WriteLine(e);
-                    ReconnectAsync();
-                }
-            } while (true);
 
-            foreach (var message in fetched)
-            {
-                try
-                {
-                    if (true)
+                    starred = client.Inbox.Search(SearchQuery.Not(SearchQuery.HasGMailLabel(@"\Starred"))).OrderBy(item => item.Id).ToList();
+                    foreach (var message in starred)
                     {
-                        _richTextBox.AppendText("\n");
-                        _richTextBox.AppendText($"{message.Date} : 메일 도착");
-
+                        mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "메일도착알림.mp3")));
+                        mediaPlayer.Play();
+                        await Task.Delay(2500);
                         // 메일 분석
-                        MimeMessage mimeMessage = client.Inbox.GetMessage(message.Index);
-                        var reservationFromMail = new Reservation(mimeMessage);
+                        MimeMessage mimeMessage = client.Inbox.GetMessage(new UniqueId(message.Id));
+                        var reservationFromMail = new Reservation(mimeMessage, richTextBox, message.Id);
 
                         // 예약파트너센터 분석
                         string reservationInfoStringFromPartnerCenter;
@@ -141,112 +119,112 @@ namespace ImapIdle
                         if (reservationFromMail.예약상태 is not ReservationState.예약메일아님)
                         {
                             reservationInfoStringFromPartnerCenter = GetReservationInfoStringFromPartnerCenter(reservationFromMail.예약번호네이버);
-                            reservationFromPartnerCenter = new Reservation(reservationInfoStringFromPartnerCenter);
+                            reservationFromPartnerCenter = new Reservation(reservationInfoStringFromPartnerCenter, richTextBox);
                             GetPastReservation(reservationFromPartnerCenter);
+                            GetManagerMemo(reservationFromMail, reservationFromPartnerCenter);
                         }
 
+                        // 떠나요 및 엑셀 처리
                         switch (reservationFromMail.예약상태)
                         {
                             case ReservationState.확정:
-                                _richTextBox.AppendText("\n");
-                                _richTextBox.AppendText($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 예약 메일 도착");
+                                richTextBox.AppendText($"\n\n@ 떠나요 등록 중 @");
+                                richTextBox.AppendText($"\n{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 예약 메일");
 
-                                await ddnayoClient.Ready(reservationFromMail, reservationFromPartnerCenter);
+                                //await ddnayoClient.Ready(reservationFromMail, reservationFromPartnerCenter);
 
-                                excel.Save(reservationFromMail, reservationFromPartnerCenter, _info);
-                                
-                                Console.WriteLine();
-                                Console.WriteLine("아래 예약 메일 => 처리 완료(실제 등록됐는지는 위의 로그 참고)");
-                                Console.WriteLine($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명}");
+                                richTextBox.AppendText($"\n\n@ 엑셀 파일 작성 중 @");
 
-                                _richTextBox.AppendText("\n");
-                                _richTextBox.AppendText($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 예약 메일 처리 완료");
+                                //excel.Save(reservationFromMail, reservationFromPartnerCenter, _info);
 
+                                richTextBox.AppendText($"\n\n{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 예약 메일 처리 완료 => 제대로 처리되었는지 주기적으로 확인해 주세요.");
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약이등록됐습니다.mp3")));
                                 mediaPlayer.Play();
-                                break;
-
-                            case ReservationState.소액테스트:
-                                Console.WriteLine();
-                                Console.WriteLine("소액 테스트 메일 => 무시");
-                                Console.WriteLine($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명}");
-
-                                _richTextBox.AppendText("\n");
-                                _richTextBox.AppendText($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 소액 테스트 메일 => 무시");
-
-                                mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다.mp3")));
-                                mediaPlayer.Play();
-                                break;
-
-                            case ReservationState.입금대기:
-                                Console.WriteLine();
-                                Console.WriteLine("아래 입금대기 메일 => 무시");
-                                Console.WriteLine($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명}");
-
-                                var path = new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다.mp3"));
-                                _richTextBox.AppendText(path.AbsolutePath);
-
-                                _richTextBox.AppendText("\n");
-                                _richTextBox.AppendText($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 입금대기 메일 무시");
-
-                                mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다.mp3")));
-                                mediaPlayer.Play();
+                                await Task.Delay(3000);
                                 break;
 
                             case ReservationState.취소:
-                                _richTextBox.AppendText("\n");
-                                _richTextBox.AppendText($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 취소 메일 도착");
-                                
-                                await ddnayoClient.Cancel(reservationFromMail, reservationFromPartnerCenter);
+                                richTextBox.AppendText($"\n\n@ 떠나요 취소 중 @");
+                                richTextBox.AppendText($"\n{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 취소 메일");
 
-                                excel.RemoveExcel(reservationFromMail, reservationFromPartnerCenter, _info);
-                                
-                                Console.WriteLine();
-                                Console.WriteLine("아래 취소 메일 => 처리 완료(실제 취소됐는지는 위의 로그 참고)");
-                                Console.WriteLine($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명}");
+                                //await ddnayoClient.Cancel(reservationFromMail, reservationFromPartnerCenter);
 
-                                _richTextBox.AppendText("\n");
-                                _richTextBox.AppendText($"{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 취소 메일 처리 완료");
+                                richTextBox.AppendText($"\n\n@ 엑셀 파일 삭제 중 @");
+                                //excel.RemoveExcel(reservationFromMail, reservationFromPartnerCenter, _info);
 
+                                richTextBox.AppendText($"\n{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 취소 메일 처리 완료 => 제대로 처리되었는지 주기적으로 확인해 주세요.");
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약이취소됐습니다.mp3")));
                                 mediaPlayer.Play();
+                                await Task.Delay(3000);
+                                break;
+
+                            case ReservationState.소액테스트:
+                                richTextBox.AppendText($"\n\n{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 소액 테스트 메일 => 무시");
+                                mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다.mp3")));
+                                mediaPlayer.Play();
+                                await Task.Delay(3000);
+                                break;
+
+                            case ReservationState.입금대기:
+                                richTextBox.AppendText($"\n\n{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 입금대기 메일 무시");
+                                mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다.mp3")));
+                                mediaPlayer.Play();
+                                await Task.Delay(3000);
                                 break;
 
                             case ReservationState.예약메일아님:
+                                richTextBox.AppendText("\n\n");
+                                richTextBox.AppendText($"{mimeMessage.Date} : 예약형식의 메일 아님");
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약메일이아닙니다.mp3")));
                                 mediaPlayer.Play();
+                                await Task.Delay(3000);
                                 break;
 
                             case ReservationState.완료:
-                                // 이런 케이스는 존재하지 않음
+                                // Reservation에는 이런 케이스가 존재하지 않음
+                                // PastReservation에는 완료 존재함
+                                await Task.Delay(3000);
                                 break;
                             default:
                                 break;
                         }
+                        client.Inbox.SetLabels(new UniqueId(message.Id), new String[] { @"\Starred" }, true);
                     }
-                    else
-                    {
-                        Console.WriteLine($"{message.Date} : {message.Envelope.Subject}");
-                    }
-
+                    break;
                 }
-                catch (Exception e)
+                catch (ImapProtocolException e)
                 {
-                    Console.WriteLine(e);
-                    _richTextBox.AppendText("\n" + e.ToString());
-                    Console.WriteLine("페치한 메일 및 파트너센터 분석 중 에러 발생");
-
-                    _richTextBox.AppendText("\n");
-                    _richTextBox.AppendText($"페치한 메일 또는 파트너센터 분석 중 에러 발생");
-
+                    richTextBox.AppendText($"\n{e.ToString()}");
+                    richTextBox.AppendText($"\n메일 또는 파트너센터 분석 중 오류 발생");
                     mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "오류가발생했습니다.mp3")));
                     mediaPlayer.Play();
                 }
+                catch (IOException e)
+                {
+                    richTextBox.AppendText($"\n{e.ToString()}");
+                    richTextBox.AppendText($"\n메일 또는 파트너센터 분석 중 오류 발생");
+                    mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "오류가발생했습니다.mp3")));
+                    mediaPlayer.Play();
+                }
+                catch (Exception e)
+                {
+                    richTextBox.AppendText($"\n{e.ToString()}");
+                    richTextBox.AppendText($"\n알 수 없는 오류 발생");
+                    mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "오류가발생했습니다.mp3")));
+                    mediaPlayer.Play();
+                    retry++;
+                    if (retry >= 3)
+                    {
+                        richTextBox.AppendText($"\n");
+                        richTextBox.AppendText($"\n예약을 처리하지 못하였습니다. 오류 메시지를 개발자에게 보내주세요.");
+                        break;
+                    }
+                }
                 finally
                 {
-                    messages.Add(message);
+                    ReconnectAsync();
                 }
-            }
+            } while (true);
         }
 
         private void GetPastReservation(Reservation reservationFromPartnerCenter)
@@ -256,8 +234,49 @@ namespace ImapIdle
             var 지난예약들 = chromeDriver.FindElementByXPath(@"/html/body/div/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div/div/div").FindElements(By.TagName("a"));
             foreach (var 지난예약 in 지난예약들)
             {
-                var 지난예약Parsed = new PastReservation(지난예약.Text.Trim());
+                int index = 지난예약들.IndexOf(지난예약);
+                var 지난예약Parsed = new PastReservation(지난예약.Text.Trim(), richTextBox, index);
                 reservationFromPartnerCenter.지난예약들.Add(지난예약Parsed);
+            }
+        }
+
+        private void GetManagerMemo(Reservation reservationFromMail, Reservation reservationFromPartnerCenter)
+        {
+            string managerMemo = $"{reservationFromMail.예약신청일시.Value.ToString("M월 d일")} {reservationFromMail.유입경로떠나요기록인데실제내용은결제수단임}{Environment.NewLine}" +
+                              $"{reservationFromPartnerCenter.예약자명}{Environment.NewLine}" +
+                              $"{reservationFromMail.이용시작일시.Value.ToString("M월 d일 dddd")} {reservationFromMail.객실} {reservationFromMail.이용일수}박{reservationFromMail.이용일수 + 1}일 {reservationFromMail.메모용객실이용금액}{Environment.NewLine}" +
+                              $"{string.Join(Environment.NewLine, reservationFromMail.메모용옵션들)}{(reservationFromMail.메모용옵션들.Count != 0 ? Environment.NewLine : string.Empty)}";
+            if (reservationFromPartnerCenter.지난예약들.Count.Equals(0))
+            {
+                reservationFromPartnerCenter.떠나요메모사항 = managerMemo;
+                reservationFromPartnerCenter.엑셀방문횟수 = "신규예약";
+            }
+            else
+            {
+                var pastReservationsMemo = $"{reservationFromPartnerCenter.지난예약들.Count}회 방문 : ";
+                var newMemoLineToAdd = pastReservationsMemo;
+                foreach (var 지난예약 in reservationFromPartnerCenter.지난예약들)
+                {
+                    var 객실명 = reservationFromPartnerCenter.객실;
+                    var 이용시작날짜 = reservationFromPartnerCenter.이용시작일시.Value.ToString("yy/M/d");
+                    var newMemoToAdd = $"{객실명}({이용시작날짜})";
+                    if ((newMemoLineToAdd + newMemoToAdd).Length < 20)
+                    {
+                        newMemoLineToAdd += newMemoToAdd;
+                    }
+                    else
+                    {
+                        pastReservationsMemo += newMemoLineToAdd;
+                        newMemoLineToAdd = Environment.NewLine + newMemoToAdd;
+                    }
+                }
+                pastReservationsMemo += newMemoLineToAdd;
+
+                reservationFromPartnerCenter.떠나요메모사항 = managerMemo + pastReservationsMemo;
+                reservationFromPartnerCenter.엑셀방문횟수 = pastReservationsMemo;
+
+                richTextBox.AppendText($"\n\n@ 떠나요 메모사항 @\n{reservationFromPartnerCenter.떠나요메모사항}");
+                richTextBox.AppendText($"\n\n@ 거래내역서 방문횟수 @\n{reservationFromPartnerCenter.엑셀방문횟수}");
             }
         }
 
@@ -275,9 +294,7 @@ namespace ImapIdle
 
             chromeDriver = new ChromeDriver(chromeDriverService, chromeOptions);
             chromeDriver.Navigate().GoToUrl("https://partner.booking.naver.com/bizes/192655/booking-list-view");
-            Console.WriteLine();
-            Console.WriteLine("예약 파트너 센터 로그인 대기 중");
-            _richTextBox.AppendText("\n예약 파트너 센터 로그인 대기 중");
+            richTextBox.AppendText("\n예약 파트너 센터 로그인 대기 중");
             do
             {
                 if (!chromeDriver.Url.Contains("login"))
@@ -286,8 +303,7 @@ namespace ImapIdle
                 }
                 Thread.Sleep(1000);
             } while (true);
-            Console.WriteLine("예약 파트너 센터 로그인 완료!");
-            _richTextBox.AppendText("\n예약 파트너 센터 로그인 완료!");
+            richTextBox.AppendText("\n예약 파트너 센터 로그인 완료!");
             chromeDriver.Navigate().GoToUrl("https://partner.booking.naver.com/bizes/192655/booking-list-view");
         }
 
@@ -303,13 +319,13 @@ namespace ImapIdle
             var 툴팁 = chromeDriver.FindElementByXPath(@"/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/div[2]").Text.Trim();
             var 옵션리스트 = 툴팁.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList().Select(item => "옵션 : " + item.Trim());
             var 옵션 = string.Join(Environment.NewLine, 옵션리스트);
-            var message = nameof(예약자번호) + " " + 예약자번호 + Environment.NewLine 
+            var message = nameof(예약자번호) + " " + 예약자번호 + Environment.NewLine
                         + 개인정보 + Environment.NewLine
                         + 예약내역 + Environment.NewLine
                         + 결제정보 + Environment.NewLine
                         + 옵션;
-            Console.WriteLine("++++++++++++++++ 파트너센터 추출 +++++++++++++++++++");
-            Console.WriteLine(message);
+            richTextBox.AppendText("\n\n@ 예약파트너센터에서 텍스트 추출 @");
+            richTextBox.AppendText($"\n{message}");
             return message;
         }
 
@@ -324,6 +340,7 @@ namespace ImapIdle
                         done = new CancellationTokenSource(new TimeSpan(0, 9, 0));
                         try
                         {
+                            richTextBox.AppendText("\n***");
                             await client.IdleAsync(done.Token, cancel.Token);
                         }
                         finally
@@ -343,12 +360,12 @@ namespace ImapIdle
                 }
                 catch (ImapProtocolException e)
                 {
-                    Console.WriteLine(e);
+                    richTextBox.AppendText("\ne.ToString()");
                     ReconnectAsync();
                 }
                 catch (IOException e)
                 {
-                    Console.WriteLine(e);
+                    richTextBox.AppendText("\ne.ToString()");
                     ReconnectAsync();
                 }
             } while (true);
@@ -360,12 +377,11 @@ namespace ImapIdle
             {
                 try
                 {
+                    richTextBox.AppendText("\n**");
                     await WaitForNewMessagesAsync();
 
                     if (messagesArrived)
                     {
-                        _richTextBox.AppendText("\n");
-                        _richTextBox.AppendText("기존 메일 처리 중(받은편지함에서 별표 없는 메일만 찾아서 처리합니다.");
                         await ProcessMessagesAsync();
                         messagesArrived = false;
                     }
@@ -379,50 +395,18 @@ namespace ImapIdle
 
         void OnCountChanged(object sender, EventArgs e)
         {
-            mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "메일도착알림.mp3")));
-            mediaPlayer.Play();
-            var folder = (ImapFolder)sender;
-
-            if (folder.Count > messages.Count)
-            {
-                int arrived = folder.Count - messages.Count;
-
-                if (arrived > 1)
-                {
-                    Console.WriteLine("\t{0}개의 새 메시지 도착", arrived);
-                }
-                else
-                {
-                    Console.WriteLine("\t1 개의 새 메시지 도착.");
-
-                }
-                messagesArrived = true;
-                done?.Cancel();
-            }
+            done?.Cancel();
+            messagesArrived = true;
         }
 
         void OnMessageExpunged(object sender, MessageEventArgs e)
         {
-            var folder = (ImapFolder)sender;
 
-            if (e.Index < messages.Count)
-            {
-                var message = messages[e.Index];
-
-                Console.WriteLine("{0}: #{1}번 메시지 삭제됨 : {2}", folder, e.Index, message.Envelope.Subject);
-                messages.RemoveAt(e.Index);
-            }
-            else
-            {
-                Console.WriteLine("{0}: #{1}번 메시지 삭제됨", folder, e.Index);
-            }
         }
 
         void OnMessageFlagsChanged(object sender, MessageFlagsChangedEventArgs e)
         {
-            var folder = (ImapFolder)sender;
-
-            Console.WriteLine("{0}: #{1}번 메시지의 플래그가 바뀜 ({2}).", folder, e.Index, e.Flags);
+            
         }
         public void Exit()
         {
