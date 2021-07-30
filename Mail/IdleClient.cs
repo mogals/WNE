@@ -24,7 +24,7 @@ namespace ImapIdle
     {
         public DdnayoClient ddnayoClient;
 
-        public Info _info = new Info();
+        public Setting setting = new Setting();
         CancellationTokenSource cancel;
         CancellationTokenSource done;
         bool messagesArrived;
@@ -39,9 +39,13 @@ namespace ImapIdle
         public RichTextBox richTextBox;
         public MediaPlayer mediaPlayer;
 
-        public IdleClient(Info info, RichTextBox _richTextBox)
+        // 통계 상태 관리
+        public bool first;
+        public List<Reservation> parsed { get; set; } = new List<Reservation>();
+
+        public IdleClient(Setting _setting, RichTextBox _richTextBox)
         {
-            _info = info;
+            setting = _setting;
             richTextBox = _richTextBox;
             client = new ImapClient();
             cancel = new CancellationTokenSource();
@@ -52,13 +56,14 @@ namespace ImapIdle
 
         public async Task RunAsync()
         {
-            ConnectPartnerCenter();
             try
             {
                 ReconnectAsync();
-                richTextBox.AppendText("\n기존 메일 처리 중(받은편지함에서 별표 없는 메일만 찾아서 처리합니다.");
+                richTextBox.AppendText("\n통계 처리 중");
+                await GetStatistics("20:00");
+                ConnectPartnerCenter();
+                richTextBox.AppendText("\n받은편지함에서 별표 없는 메일 처리 시작");
                 await ProcessMessagesAsync();
-                await ProcessMessagesAsync(); // 두 번 처리
             }
             catch (OperationCanceledException e)
             {
@@ -70,9 +75,9 @@ namespace ImapIdle
             inbox.CountChanged += OnCountChanged;
             inbox.MessageExpunged += OnMessageExpunged;
             inbox.MessageFlagsChanged += OnMessageFlagsChanged;
-            richTextBox.AppendText("\n*");
+            richTextBox.AppendText($"\n/*({DateTime.Now.ToString("MM-dd hh:mm:ss")})");
             await IdleAsync();
-            richTextBox.AppendText("\n****");
+            richTextBox.AppendText($"\n/****({DateTime.Now.ToString("MM-dd hh:mm:ss")})");
             inbox.MessageFlagsChanged -= OnMessageFlagsChanged;
             inbox.MessageExpunged -= OnMessageExpunged;
             inbox.CountChanged -= OnCountChanged;
@@ -93,25 +98,101 @@ namespace ImapIdle
             richTextBox.AppendText("\n메일 접속 및 로그인함");
         }
 
-        async Task ProcessMessagesAsync()
+        public async Task GetStatistics(string baseTime, Reservation newReservation = null)  // baseTime 예시 => 17:05
         {
             await Task.Delay(100);
+            List<UniqueId> delivered;
+            int retry = 0;
+            string[] 시분분리 = baseTime.Split(":");
+            DateTime 지금시각 = DateTime.Now;
+            DateTime 기준시각 = new DateTime(지금시각.Year, 지금시각.Month, 지금시각.Day, int.Parse(시분분리[0].Trim()), int.Parse(시분분리[1].Trim()), 0);
+
+            if ((지금시각 - 기준시각).TotalSeconds < 0)
+            {
+                기준시각 = 기준시각.AddDays(-1);
+            }
+            if (newReservation is null)
+            {
+                do
+                {
+                    try
+                    {
+                        //richTextBox.AppendText($"{지금시각.ToString()} {지금시각.Kind.ToString()}");
+                        delivered = client.Inbox.Search(SearchQuery.DeliveredAfter(기준시각).And(SearchQuery.HasGMailLabel(@"\Starred"))).ToList();  // The resolution of this search query does not include the time.
+                        foreach (var message in delivered)
+                        {
+                            // 메일 분석
+                            MimeMessage mimeMessage = client.Inbox.GetMessage(new UniqueId(message.Id));
+
+                            if ((mimeMessage.Date.DateTime - 기준시각).TotalSeconds > 0)
+                            {
+                                var reservationFromMail = new Reservation(mimeMessage, richTextBox);
+                                //richTextBox.AppendText($"\n{mimeMessage.Date.DateTime.ToString("yy-MM-dd HH:mm:ss")} => {reservationFromMail.예약상태.ToString()}");
+
+                                if (parsed.Where(item => item.예약번호네이버.Equals(reservationFromMail.예약번호네이버) && item.예약상태.Equals(reservationFromMail.예약상태)).Count() == 0)
+                                {
+                                    richTextBox.AppendText("\n PPPPPPP");
+                                    parsed.Add(reservationFromMail);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        retry++;
+                        if (retry >= 3)
+                        {
+                            richTextBox.AppendText($"\n{e.ToString()}");
+                            richTextBox.AppendText($"\n통계 처리 중 오류 발생. 오류 메시지를 개발자에게 보내주세요.");
+                            break;
+                        }
+                    }
+                    finally
+                    {
+                        ReconnectAsync();
+                    }
+                } while (true);
+
+            }
+            else // 새 메일 통계 추가
+            {
+                if (parsed.Where(item => item.예약번호네이버.Equals(newReservation.예약번호네이버) && item.예약상태.Equals(newReservation.예약상태)).Count() == 0)
+                {
+                    parsed.Add(newReservation);
+                    richTextBox.AppendText($"\n{newReservation.메일수신일시.ToString()}");
+                }
+            }
+
+            parsed.RemoveAll(item => (item.메일수신일시 - 기준시각).TotalSeconds < 0);
+
+            var 전체메일수 = parsed.Count;
+            var 예약메일수 = parsed.Where(item => item.예약상태 is ReservationState.확정).Count();
+            var 취소메일수 = parsed.Where(item => item.예약상태 is ReservationState.취소).Count();
+            var 무시메일수 = parsed.Where(item => item.예약상태 is ReservationState.예약메일아님 or ReservationState.소액테스트입금대기 or ReservationState.소액테스트확정 or ReservationState.입금대기).Count();
+            var 오류메일수 = parsed.Where(item => item.예약상태 is ReservationState.분석중오류발생).Count();
+            richTextBox.AppendText($"\nㅡㅡㅡㅡㅡ  {기준시각.ToString("MM-dd HH:mm:ss")} 이후 도착한 메일에 대한 통계  ㅡㅡㅡㅡㅡ");
+            richTextBox.AppendText($"\n          전체 : {전체메일수}, 예약 : {예약메일수}, 취소 : {취소메일수}, 무시 : {무시메일수}, 오류 : {오류메일수}");
+            richTextBox.AppendText($"\nㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
+        }
+
+        async Task ProcessMessagesAsync()
+        {
             IList<UniqueId> starred;
             int retry = 0;
             do
             {
                 try
                 {
-
                     starred = client.Inbox.Search(SearchQuery.Not(SearchQuery.HasGMailLabel(@"\Starred"))).OrderBy(item => item.Id).ToList();
-                    foreach (var message in starred)
+                    foreach (UniqueId message in starred)
                     {
                         mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "메일도착알림.mp3")));
                         mediaPlayer.Play();
-                        await Task.Delay(2500);
+                        await Task.Delay(1000);
                         // 메일 분석
                         MimeMessage mimeMessage = client.Inbox.GetMessage(new UniqueId(message.Id));
-                        var reservationFromMail = new Reservation(mimeMessage, richTextBox, message.Id);
+                        Reservation reservationFromMail = new Reservation(mimeMessage, richTextBox);
 
                         // 예약파트너센터 분석
                         string reservationInfoStringFromPartnerCenter;
@@ -140,7 +221,7 @@ namespace ImapIdle
                                 richTextBox.AppendText($"\n\n{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 예약 메일 처리 완료 => 제대로 처리되었는지 주기적으로 확인해 주세요.");
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약이등록됐습니다.mp3")));
                                 mediaPlayer.Play();
-                                await Task.Delay(3000);
+                                await Task.Delay(2500);
                                 break;
 
                             case ReservationState.취소:
@@ -155,21 +236,28 @@ namespace ImapIdle
                                 richTextBox.AppendText($"\n{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 취소 메일 처리 완료 => 제대로 처리되었는지 주기적으로 확인해 주세요.");
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약이취소됐습니다.mp3")));
                                 mediaPlayer.Play();
-                                await Task.Delay(3000);
+                                await Task.Delay(2500);
                                 break;
 
-                            case ReservationState.소액테스트:
+                            case ReservationState.소액테스트입금대기:
                                 richTextBox.AppendText($"\n\n{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 소액 테스트 메일 => 무시");
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다.mp3")));
                                 mediaPlayer.Play();
-                                await Task.Delay(3000);
+                                await Task.Delay(2500);
+                                break;
+
+                            case ReservationState.소액테스트확정:
+                                richTextBox.AppendText($"\n\n{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 소액 테스트 메일 => 무시");
+                                mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다.mp3")));
+                                mediaPlayer.Play();
+                                await Task.Delay(2500);
                                 break;
 
                             case ReservationState.입금대기:
                                 richTextBox.AppendText($"\n\n{mimeMessage.Date} : {reservationFromPartnerCenter.예약자명} : 입금대기 메일 무시");
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약을무시합니다.mp3")));
                                 mediaPlayer.Play();
-                                await Task.Delay(3000);
+                                await Task.Delay(2500);
                                 break;
 
                             case ReservationState.예약메일아님:
@@ -177,20 +265,25 @@ namespace ImapIdle
                                 richTextBox.AppendText($"{mimeMessage.Date} : 예약형식의 메일 아님");
                                 mediaPlayer.Open(new Uri(Path.Combine(Environment.CurrentDirectory, "Media", "예약메일이아닙니다.mp3")));
                                 mediaPlayer.Play();
-                                await Task.Delay(3000);
+                                await Task.Delay(2500);
                                 break;
 
                             case ReservationState.완료:
                                 // Reservation에는 이런 케이스가 존재하지 않음
                                 // PastReservation에는 완료 존재함
-                                await Task.Delay(3000);
+                                await Task.Delay(25000);
                                 break;
                             default:
                                 break;
                         }
-                        client.Inbox.SetLabels(new UniqueId(message.Id), new String[] { @"\Starred" }, true);
+                        client.Inbox.AddLabels(new UniqueId(message.Id), new String[] { @"\Starred" }, true);
+                        await GetStatistics("20:00", reservationFromMail);
                     }
-                    break;
+                    starred = client.Inbox.Search(SearchQuery.Not(SearchQuery.HasGMailLabel(@"\Starred"))).OrderBy(item => item.Id).ToList();
+                    if (starred.Count == 0)
+                    {
+                        break;
+                    }
                 }
                 catch (ImapProtocolException e)
                 {
@@ -246,38 +339,56 @@ namespace ImapIdle
                               $"{reservationFromPartnerCenter.예약자명}{Environment.NewLine}" +
                               $"{reservationFromMail.이용시작일시.Value.ToString("M월 d일 dddd")} {reservationFromMail.객실} {reservationFromMail.이용일수}박{reservationFromMail.이용일수 + 1}일 {reservationFromMail.메모용객실이용금액}{Environment.NewLine}" +
                               $"{string.Join(Environment.NewLine, reservationFromMail.메모용옵션들)}{(reservationFromMail.메모용옵션들.Count != 0 ? Environment.NewLine : string.Empty)}";
-            if (reservationFromPartnerCenter.지난예약들.Count.Equals(0))
+            int 완료예약수 = reservationFromPartnerCenter.지난예약들.Where(item => item.예약상태 == ReservationState.완료).Count();
+            if (완료예약수 == 0)
             {
                 reservationFromPartnerCenter.떠나요메모사항 = managerMemo;
                 reservationFromPartnerCenter.엑셀방문횟수 = "신규예약";
             }
             else
             {
-                var pastReservationsMemo = $"{reservationFromPartnerCenter.지난예약들.Count}회 방문 : ";
-                var newMemoLineToAdd = pastReservationsMemo;
-                foreach (var 지난예약 in reservationFromPartnerCenter.지난예약들)
+                // 한 줄이 20글자 이상일 때 처리
+                //var pastReservationsMemo = string.Empty;
+                //var newMemoLineToAdd = $"{reservationFromPartnerCenter.지난예약들.Count}회 방문 : ";
+                //foreach (var 지난예약 in reservationFromPartnerCenter.지난예약들)
+                //{
+                //    var 객실명 = 지난예약.객실;
+                //    var 이용시작날짜 = 지난예약.이용시작일시.Value.ToString("yy/M/d");
+                //    var newMemoToAdd = $"{객실명}({이용시작날짜})";
+                //    if ((newMemoLineToAdd + newMemoToAdd).Length < 20)
+                //    {
+                //        newMemoLineToAdd += newMemoToAdd;
+                //    }
+                //    else
+                //    {
+                //        pastReservationsMemo += newMemoLineToAdd;
+                //        newMemoLineToAdd = Environment.NewLine + newMemoToAdd;
+                //    }
+                //}
+                //pastReservationsMemo += newMemoLineToAdd;
+
+
+                // 한 줄이 20글자 이상이더라도 그냥 이어 붙여도 상관없음. 단, 엑셀 파일에서 자동줄바꿈 설정을 해야 함.
+
+                var pastReservationsMemo = string.Empty;
+                foreach (var 지난예약 in reservationFromPartnerCenter.지난예약들.OrderBy(item => item.이용시작일시))
                 {
-                    var 객실명 = reservationFromPartnerCenter.객실;
-                    var 이용시작날짜 = reservationFromPartnerCenter.이용시작일시.Value.ToString("yy/M/d");
-                    var newMemoToAdd = $"{객실명}({이용시작날짜})";
-                    if ((newMemoLineToAdd + newMemoToAdd).Length < 20)
+                    if (지난예약.예약상태 == ReservationState.완료)
                     {
-                        newMemoLineToAdd += newMemoToAdd;
-                    }
-                    else
-                    {
-                        pastReservationsMemo += newMemoLineToAdd;
-                        newMemoLineToAdd = Environment.NewLine + newMemoToAdd;
+                        var 객실명 = 지난예약.객실;
+                        var 이용시작날짜 = 지난예약.이용시작일시.Value.ToString("yy/M/d").Replace("-", "/");
+                        var newMemoToAdd = $"{객실명}({이용시작날짜}), ";
+                        pastReservationsMemo += newMemoToAdd;
                     }
                 }
-                pastReservationsMemo += newMemoLineToAdd;
-
+                if (pastReservationsMemo.Length >= 2)
+                {
+                    pastReservationsMemo = pastReservationsMemo.Substring(0, pastReservationsMemo.Length - 2); // 마지막 콤마 제거
+                }
                 reservationFromPartnerCenter.떠나요메모사항 = managerMemo + pastReservationsMemo;
-                reservationFromPartnerCenter.엑셀방문횟수 = pastReservationsMemo;
-
-                richTextBox.AppendText($"\n\n@ 떠나요 메모사항 @\n{reservationFromPartnerCenter.떠나요메모사항}");
-                richTextBox.AppendText($"\n\n@ 거래내역서 방문횟수 @\n{reservationFromPartnerCenter.엑셀방문횟수}");
             }
+            richTextBox.AppendText($"\n\n@ 떠나요 메모사항 @\n{reservationFromPartnerCenter.떠나요메모사항}");
+            richTextBox.AppendText($"\n\n@ 거래내역서 방문횟수 @\n{reservationFromPartnerCenter.엑셀방문횟수}");
         }
 
         public void ConnectPartnerCenter()
@@ -340,7 +451,7 @@ namespace ImapIdle
                         done = new CancellationTokenSource(new TimeSpan(0, 9, 0));
                         try
                         {
-                            richTextBox.AppendText("\n***");
+                            richTextBox.AppendText($"\n/***({DateTime.Now.ToString("MM-dd hh:mm:ss")})");
                             await client.IdleAsync(done.Token, cancel.Token);
                         }
                         finally
@@ -360,12 +471,12 @@ namespace ImapIdle
                 }
                 catch (ImapProtocolException e)
                 {
-                    richTextBox.AppendText("\ne.ToString()");
+                    richTextBox.AppendText($"\n{e.ToString()}");
                     ReconnectAsync();
                 }
                 catch (IOException e)
                 {
-                    richTextBox.AppendText("\ne.ToString()");
+                    richTextBox.AppendText($"\n{e.ToString()}");
                     ReconnectAsync();
                 }
             } while (true);
@@ -377,7 +488,7 @@ namespace ImapIdle
             {
                 try
                 {
-                    richTextBox.AppendText("\n**");
+                    richTextBox.AppendText($"\n/**({DateTime.Now.ToString("MM-dd hh:mm:ss")})");
                     await WaitForNewMessagesAsync();
 
                     if (messagesArrived)
@@ -406,7 +517,8 @@ namespace ImapIdle
 
         void OnMessageFlagsChanged(object sender, MessageFlagsChangedEventArgs e)
         {
-            
+            done?.Cancel();
+            messagesArrived = true;
         }
         public void Exit()
         {

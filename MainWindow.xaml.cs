@@ -73,8 +73,12 @@ namespace WNE
                 deleteRequestUrl = string.Empty,
                 retrieveRequestUrl = $"https://partner.ddnayo.com/pms-api/accommodation/{6850}/reservation/management-list",
             };
-            idleClient = new IdleClient(info, richTextBox);
-            idleClient.RunAsync();
+
+            setting.
+
+
+            idleClient = new IdleClient(setting, richTextBox);
+            Task task = idleClient.RunAsync();
 
         }
 

@@ -189,7 +189,7 @@ namespace WNE.Parsing
                             이용일수 = (이용종료일시.Value - 이용시작일시.Value).Days;
                             richTextBox.AppendText($"\n이용시작일시 추출 : {이용시작일시}");
                             richTextBox.AppendText($"\n이용종료일시 추출 : {이용종료일시}");
-                            richTextBox.AppendText($"\n이용일수 추출 : {이용일수}박 {이용일수+1}일");
+                            richTextBox.AppendText($"\n이용일수 추출 : {이용일수}박 {이용일수 + 1}일");
                             break;
                         case "수량":
                             richTextBox.AppendText($"\n{제목} : {내용}");
@@ -260,7 +260,14 @@ namespace WNE.Parsing
                 }
                 if (IsInRange(결제금액, 0, 5000))
                 {
-                    예약상태 = ReservationState.소액테스트;
+                    if (예약상태 is ReservationState.입금대기)
+                    {
+                        예약상태 = ReservationState.소액테스트입금대기;
+                    }
+                    else if (예약상태 is ReservationState.확정)
+                    {
+                        예약상태 = ReservationState.소액테스트확정;
+                    }
                 }
             }
             catch (NotReservationMailException e)
@@ -284,13 +291,13 @@ namespace WNE.Parsing
                 richTextBox.AppendText($"\n예외발생 예약 텍스트 : {partnerCenterMessage}");
             }
         }
-        public Reservation(MimeMessage mimeMessage, RichTextBox richTextBox, uint uniqueId)
+        public Reservation(MimeMessage mimeMessage, RichTextBox richTextBox)
         {
             richTextBox.AppendText($"\n################################################################");
             richTextBox.AppendText($"\n@ 메일 분석 중 @");
-            richTextBox.AppendText($"\nUniqueId : {uniqueId}");
             richTextBox.AppendText($"\n{mimeMessage.Date} : {mimeMessage.Subject}");
             string textBody = string.Empty;
+            메일수신일시 = mimeMessage.Date.DateTime;
             try
             {
                 textBody = mimeMessage.TextBody?.Replace("예약신청 일시", "예약신청일시")
@@ -409,7 +416,7 @@ namespace WNE.Parsing
                             이용일수 = (이용종료일시.Value - 이용시작일시.Value).Days;
                             richTextBox.AppendText($"\n이용시작일시 추출 : {이용시작일시}");
                             richTextBox.AppendText($"\n이용종료일시 추출: {이용종료일시}");
-                            richTextBox.AppendText($"\n이용일수 추출 : {이용일수}박 {이용일수+1}일");
+                            richTextBox.AppendText($"\n이용일수 추출 : {이용일수}박 {이용일수 + 1}일");
                             break;
                         case "결제상태":
                             richTextBox.AppendText($"\n{제목} : {내용}");
@@ -532,7 +539,7 @@ namespace WNE.Parsing
                                     옵션총금액 = int.Parse(옵션금액),
                                     옵션사람수또는개수 = int.Parse(옵션사람수),
                                 };
-                                옵션.옵션단품금액 =(int)(옵션.옵션총금액 / 옵션.옵션사람수또는개수);
+                                옵션.옵션단품금액 = (int)(옵션.옵션총금액 / 옵션.옵션사람수또는개수);
                                 if (메모용옵션 is not null)
                                 {
                                     메모용옵션들.Add(메모용옵션);
@@ -636,7 +643,14 @@ namespace WNE.Parsing
                 }
                 if (IsInRange(결제금액, 0, 5000))
                 {
-                    예약상태 = ReservationState.소액테스트;
+                    if (예약상태 is ReservationState.입금대기)
+                    {
+                        예약상태 = ReservationState.소액테스트입금대기;
+                    }
+                    else if (예약상태 is ReservationState.확정)
+                    {
+                        예약상태 = ReservationState.소액테스트확정;
+                    }
                 }
                 유입경로떠나요기록인데실제내용은결제수단임 = GetFlowInSaleDomainHomepage(결제수단);
             }

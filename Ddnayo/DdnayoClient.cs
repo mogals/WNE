@@ -208,7 +208,7 @@ namespace WNE.Ddnayo
                 HttpResponseMessage response = await httpClient.SendAsync(requestMessage);
                 string responseBody = await response.Content.ReadAsStringAsync();
 
-                // RESP API 예외처리 및 재시도 패턴 구현 필요함!
+                // REST API 예외처리 및 재시도 패턴 구현 필요함!
 
                 ReadyResponseContent jsonResponse = JsonConvert.DeserializeObject<ReadyResponseContent>(responseBody);
 
@@ -245,7 +245,6 @@ namespace WNE.Ddnayo
                             default:
                                 break;
                         }
-
                     }
                 }
                 else  // 404, 503등 처리과정 중 오류 났을 때???
