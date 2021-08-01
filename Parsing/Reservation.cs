@@ -10,6 +10,7 @@ namespace WNE.Parsing
 {
     public class Reservation
     {
+        public string MessageId;
         public bool 떠나요처리여부;
         public DateTime 메일수신일시;
         public bool 테스트메일인가;
@@ -51,7 +52,7 @@ namespace WNE.Parsing
         public string 유입경로 = string.Empty; // 유입경로가 공백인 상태로 보내지면 떠나요에서 admin으로 자동 설정됨.
         public string 유입경로떠나요기록인데실제내용은결제수단임;
         public string 떠나요메모사항;
-        public string 엑셀방문횟수;
+        public string 거래내역서방문횟수;
         public List<string> 메모용옵션들;
         public List<옵션> 옵션들 = new List<옵션>();
         public List<PastReservation> 지난예약들 = new List<PastReservation>();
@@ -298,6 +299,7 @@ namespace WNE.Parsing
             richTextBox.AppendText($"\n{mimeMessage.Date} : {mimeMessage.Subject}");
             string textBody = string.Empty;
             메일수신일시 = mimeMessage.Date.DateTime;
+            MessageId = mimeMessage.MessageId;
             try
             {
                 textBody = mimeMessage.TextBody?.Replace("예약신청 일시", "예약신청일시")
@@ -631,7 +633,7 @@ namespace WNE.Parsing
                             break;
                         case "요청사항":
                             richTextBox.AppendText($"\n{제목} : {내용}");
-                            요청사항 = 내용;
+                            요청사항 = 내용 is "-" ? string.Empty : 내용;
                             break;
                         case "취소사유":
                             richTextBox.AppendText($"\n{제목} : {내용}");

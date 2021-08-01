@@ -26,60 +26,36 @@ namespace WNE
     public partial class MainWindow : Window
     {
         public string saveFolder { get; set; }
-        
+
         public Setting setting { get; set; }
 
         public IdleClient idleClient;
         public MainWindow()
         {
             InitializeComponent();
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            dialog.IsFolderPicker = true;
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            setting = YamlFileController.Instance.DeSerialize<Setting>("설정.yml");
+            richTextBox.AppendText($"\n테스트 메일용 약속 문자 : {setting.테스트예약표기문자}");
+            if (setting.거래내역서기능사용여부)
             {
-                richTextBox.AppendText($"\n[{dialog.FileName}]에 엑셀파일을 저장합니다.");
-                saveFolder = dialog.FileName;
+                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                dialog.IsFolderPicker = true;
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                {
+                    richTextBox.AppendText($"\n[{dialog.FileName}]에 엑셀파일을 저장합니다.");
+                    saveFolder = dialog.FileName;
+                }
             }
 
-            setting = YamlFileController.Instance.DeSerialize<Setting>("설정.yml");
-            richTextBox.AppendText($"\n{setting.테스트예약표기문자}");
         }
 
         private void start_Click(object sender, RoutedEventArgs e)
         {
-            //leftPanel.Visibility = Visibility.Collapsed;
-            int result;
-            int.TryParse(beforeTime.Text, out result);
-            Info info = new Info()
-            {
-                beforeTime = result,
-                saveFolder = saveFolder,
-                SslOptions = SecureSocketOptions.Auto,
-                imapMailPort = 993,
-                mailHost = "imap.gmail.com",
-                mailUsername = string.IsNullOrWhiteSpace(gmail.Text) ? "moire478.bot@gmail.com" : gmail.Text,
-                mailPassword = string.IsNullOrWhiteSpace(password.Password) ? "moire1779!" : password.Password,
-                naverUsername = "moire478_bot",
-                naverPassword = "moire1779!",
-                ddnayoUsername = "hs빌",
-                ddnayoPassword = "moire8824!",
-                ddnayoAuthLogin = "false",
-                ddnayoAccomodationId = 6850,
-                ddnayoMaxStayDays = 15,
-                loginRequestUrl = "https://partner.ddnayo.com/security/login",
-                registerRequestUrl = "https://partner.ddnayo.com/pms-api/reservation/ready",
-                cancelRequestUrl = string.Empty,
-                deleteRequestUrl = string.Empty,
-                retrieveRequestUrl = $"https://partner.ddnayo.com/pms-api/accommodation/{6850}/reservation/management-list",
-            };
-
-            setting.
-
-
+            leftPanel.Visibility = Visibility.Collapsed;
+            setting.엑셀저장폴더 = saveFolder;
+            var items = setting.GetType().GetProperties();
             idleClient = new IdleClient(setting, richTextBox);
             Task task = idleClient.RunAsync();
-
         }
 
         private void richTextBox_TextChanged(object sender, TextChangedEventArgs e)

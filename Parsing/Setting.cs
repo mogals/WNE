@@ -12,7 +12,6 @@ namespace WNE.Parsing
         public string ChromeProfileFolder { get; set; }
 
         // 지메일
-        public string 지메일SslOptions {get; set;}
         public int 지메일ImapPort {get; set;} 
         public string 지메일Host {get; set;} 
         public string 지메일Username {get; set;} 
@@ -38,6 +37,7 @@ namespace WNE.Parsing
         public string 네이버파트너센터툴팁CssSelector {get; set;}
 
         // 떠나요
+        public bool 떠나요기능사용여부 { get; set; }
         public string 떠나요Username { get; set; }
         public string 떠나요Password {get; set;} 
         public string 떠나요AuthLogin {get; set;} 
@@ -47,7 +47,8 @@ namespace WNE.Parsing
         public string 떠나요RegisterRequestUrl {get; set;}
         public string 떠나요CancelRequestUrl {get; set;}
         public string 떠나요DeleteRequestUrl {get; set;}
-        public string 떠나요RetrieveRequestUrl {get; set;} 
+        public string 떠나요RetrieveRequestUrl {get; set;}
+        public string 떠나요통계기준시간 { get; set; }
 
         // Media 폴더
         public string 회사로고 {get; set;} 
@@ -69,8 +70,10 @@ namespace WNE.Parsing
         public int 알림음과알림말사이재생시간간격 {get; set;}
 
         // 기타
+        public bool 거래내역서기능사용여부 { get; set; }
         public string 테스트예약표기문자 {get; set;}
         public List<string> 오류발생시알림메일 { get; set; }
         public int 얼마이하를소액결제로볼것인가 { get; set; }
+        public string 엑셀저장폴더 { get; set; }
     }
 }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WNE"
         mc:Ignorable="d"
-        Title="MOIRE478 EXCEL 거래내역서 자동처리" Height="682" Width="1021">
+        Title="MOIRE478" Height="682" Width="1021">
 
     <DockPanel LastChildFill="False">
         <StackPanel x:Name="leftPanel" Width="320">
@@ -17,22 +17,6 @@
                 <PasswordBox x:Name="password" Height="27" Canvas.Left="125" Canvas.Top="69" Width="185"/>
             </Canvas>
             <Button x:Name="start" Height="51" Width="118" Content="실행" FontSize="20" FontWeight="Normal" BorderThickness="1,1,1,1" FontStretch="Condensed" BorderBrush="White" Foreground="Black" Background="#FFB9DAAC" Click="start_Click"/>
-            <Grid Height="74" Width="224" Visibility="Visible" HorizontalAlignment="Center" Margin="0,30,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="18*"/>
-                    <RowDefinition Height="19*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Label x:Name="label" Content="당일 예약" HorizontalAlignment="Center" Height="30" VerticalAlignment="Center" Width="62"/>
-                <Label x:Name="label1" Content="당일예약 취소" Grid.Column="1" HorizontalAlignment="Center" Height="30" VerticalAlignment="Center" Width="92"/>
-                <TextBlock x:Name="textBlock2" HorizontalAlignment="Left" Margin="23,0,0,0" Grid.Row="1" TextWrapping="Wrap" VerticalAlignment="Center" Width="79"/>
-                <TextBlock x:Name="textBlock3" Grid.Column="1" HorizontalAlignment="Center" Grid.Row="1"  TextWrapping="Wrap" VerticalAlignment="Center" Width="92"/>
-            </Grid>
-            <TextBox x:Name="beforeTime" Text="0" TextWrapping="Wrap" Width="58" Height="32" Margin="0,20,0,0" FontSize="18" VerticalAlignment="Stretch" TextAlignment="Center"/>
-            <TextBlock x:Name="textBlock4" Height="24" TextWrapping="Wrap" Width="220" Margin="0,5,0,0" FontSize="14" Visibility="Visible" Foreground="#FF1895B9"><Run Text="시간 전"/><Run Language="ko-kr" Text="에 도착한 메일 함께 처리"/><LineBreak/><Run Language="ko-kr"/></TextBlock>
 
         </StackPanel>
         <RichTextBox x:Name="richTextBox" Background="#FFF1F1D2"  AutoWordSelection="False" IsReadOnly="True" TextChanged="richTextBox_TextChanged" >

@@ -2,11 +2,10 @@
 ChromeProfileFolder : "ChromeProfileFolder"
 
 #지메일
-지메일SslOptions :
 지메일ImapPort : 993
 지메일Host : "imap.gmail.com"
-지메일Username : "moire478.bot@gmail.com"
-지메일Password : "moire1779!"
+지메일Username : "jjumez@gmail.com" #"moire478.bot@gmail.com"
+지메일Password : "skdudtjsdud0!"  #"moire1779!"
 
 # 네이버
 네이버Username : "moire478_bot"
@@ -29,6 +28,7 @@ ChromeProfileFolder : "ChromeProfileFolder"
 
 
 # 떠나요
+떠나요기능사용여부 : true
 떠나요Username : "hs빌"
 떠나요Password : "moire8824!"
 떠나요AuthLogin : "false"
@@ -39,6 +39,8 @@ ChromeProfileFolder : "ChromeProfileFolder"
 떠나요CancelRequestUrl : ""
 떠나요DeleteRequestUrl : ""
 떠나요RetrieveRequestUrl : "https://partner.ddnayo.com/pms-api/accommodation/{accomodationId}/reservation/management-list"
+떠나요통계기준시간 : "20:00"  # 몇시:몇분
+
 
 # Media 폴더
 회사로고 : "moire478logo.png"
@@ -60,6 +62,7 @@ ChromeProfileFolder : "ChromeProfileFolder"
 알림음과알림말사이재생시간간격 : 2  # 초 단위
 
 # 기타
+거래내역서기능사용여부 : true
 테스트예약표기문자 : "@@@"
 오류발생시알림메일 : ["moire478.bot@gmail.com", "moire478_bot@naver.com"]
 얼마이하를소액결제로볼것인가 : 5000

@@ -73,7 +73,7 @@ namespace Report
 
         };
 
-        public void Save(Reservation reservationFromMail, Reservation reservationFromPartnerCeter, Info info, RichTextBox richTextBox)
+        public void Save(Reservation reservationFromMail, Reservation reservationFromPartnerCeter, Setting setting, RichTextBox richTextBox)
         {
             var 거래내역서파일 = Path.Combine(Environment.CurrentDirectory, "거래내역서.xlsx");
             var workbook = GetWorkbook(거래내역서파일);
@@ -276,13 +276,13 @@ namespace Report
             sheet.GetCell(46, 2).SetCellValue(reservationFromMail.요청사항);
 
             // 방문횟수
-            sheet.GetCell(49, 2).SetCellValue(reservationFromPartnerCeter.엑셀방문횟수);
+            sheet.GetCell(49, 2).SetCellValue(reservationFromPartnerCeter.거래내역서방문횟수);
 
             // 수식계산
             XSSFFormulaEvaluator.EvaluateAllFormulaCells(workbook);
 
             // 저장
-            WriteExcel(workbook, reservationFromMail, reservationFromPartnerCeter, info);
+            WriteExcel(workbook, reservationFromMail, reservationFromPartnerCeter, setting);
         }
 
         public string GetFlowInSaleDomainHomepage(string 결제수단)
@@ -316,15 +316,19 @@ namespace Report
             }
         }
 
-        public void WriteExcel(IWorkbook workbook, Reservation reservationFromMail, Reservation reservationFromPartnerCenter, Info info)
+        public void WriteExcel(IWorkbook workbook, Reservation reservationFromMail, Reservation reservationFromPartnerCenter, Setting setting)
         {
-            defaultPath = info.saveFolder;
+            defaultPath = setting.엑셀저장폴더;
             string year = reservationFromMail.이용시작일시.Value.ToString("yyyy년");
             string month = reservationFromMail.이용시작일시.Value.ToString("M월");
             string date = reservationFromMail.이용시작일시.Value.ToString("MM.dd");
-            string name = reservationFromPartnerCenter.예약자명.Replace(" ", string.Empty); ;
+            string name = reservationFromPartnerCenter.예약자명.Replace(" ", string.Empty);
             string roomName = reservationFromMail.객실;
             string folderPath = Path.Combine(defaultPath, year, month);
+            if (reservationFromMail.테스트메일인가)
+            {
+                folderPath = Path.Combine(defaultPath, "##TEST##", year, month);
+            }
             string fileName = $"거래내역서 {date} {name} ({roomName}).xlsx";
             string filePath = Path.Combine(folderPath, fileName);
             if (!Directory.Exists(folderPath))
@@ -337,9 +341,9 @@ namespace Report
             }
         }
 
-        public void RemoveExcel(Reservation reservationFromMail, Reservation reservationFromPartnerCenter, Info info, RichTextBox richTextBox)
+        public void RemoveExcel(Reservation reservationFromMail, Reservation reservationFromPartnerCenter, Setting setting, RichTextBox richTextBox)
         {
-            defaultPath = info.saveFolder;
+            defaultPath = setting.엑셀저장폴더;
             string year = reservationFromMail.이용시작일시.Value.ToString("yyyy년");
             string month = reservationFromMail.이용시작일시.Value.ToString("M월");
             string date = reservationFromMail.이용시작일시.Value.ToString("MM.dd");
