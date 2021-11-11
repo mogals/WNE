@@ -128,7 +128,7 @@ namespace WNE.Parsing
                             예약자명 = 성명;
                             richTextBox.AppendText($"\n님제거 예약자명 : {예약자명}");
                             break;
-                        case nameof(예약자번호):
+                        case "예약자번호":
                             richTextBox.AppendText($"\n{제목} : {내용}");
                             예약자번호 = 내용.Trim();
                             break;

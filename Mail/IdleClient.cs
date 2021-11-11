@@ -62,11 +62,10 @@ namespace ImapIdle
             try
             {
                 ReconnectAsync();
-                richTextBox.AppendText("\n통계 처리 중");
-                await GetStatistics(setting.떠나요통계기준시간);
                 ConnectPartnerCenter();
                 Task.Delay(1000);
-                ConnectPartnerCenter();
+                richTextBox.AppendText("\n통계 처리 중");
+                await GetStatistics(setting.떠나요통계기준시간);
                 richTextBox.AppendText("\n받은편지함에서 별표 없는 메일 처리 시작");
                 await ProcessMessagesAsync();
             }
@@ -306,7 +305,6 @@ namespace ImapIdle
                     notStarredLabel = client.Inbox.Search(SearchQuery.Not(SearchQuery.HasGMailLabel(@"\Starred"))).OrderBy(item => item.Id).ToList();
                     if (notStarredLabel.Count == 0)
                     {
-                        chromeDriver.Navigate().GoToUrl($"https://colorful-gas-374.notion.site/419f8bbb31e34a3a8e5bb07aee5a69cc");
                         break;
                     }
                 }
@@ -357,6 +355,8 @@ namespace ImapIdle
                     ReconnectAsync();
                     chromeDriver.SwitchTo().Window(chromeHandler);
                 }
+
+
             } while (true);
         }
 
@@ -364,8 +364,8 @@ namespace ImapIdle
         {
             chromeDriver.Navigate().GoToUrl($"https://partner.booking.naver.com/bizes/192655/booking-list-view/users/{reservationFromPartnerCenter.예약자번호}/bookings");
             Thread.Sleep(3000);
-            var 지난예약들 = chromeDriver.FindElementByXPath(@"/html/body/div/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div/div/div").FindElements(By.TagName("a"));
-            foreach (var 지난예약 in 지난예약들)
+            var 지난예약들 = chromeDriver.FindElement(By.XPath(@"/html/body/div/div/div[2]/div[2]/div/div[3]/div[2]/div/div[2]/div/div/div/div/div")).FindElements(By.TagName("a"));
+            foreach (var 지난예약 in 지난예약들)               
             {
                 int index = 지난예약들.IndexOf(지난예약);
                 var 지난예약Parsed = new PastReservation(지난예약.Text.Trim(), richTextBox, index);
@@ -430,7 +430,7 @@ namespace ImapIdle
                     chromeDriver = new ChromeDriver(chromeDriverService, chromeOptions);
                     chromeHandler = chromeDriver.CurrentWindowHandle;
                 }
-                chromeDriver.Navigate().GoToUrl("https://partner.booking.naver.com/bizes/192655/booking-list-view");
+                chromeDriver.Navigate().GoToUrl("https://nid.naver.com/nidlogin.login?svctype=1&locale=ko_KR");
                 richTextBox.AppendText("\n예약 파트너 센터 로그인 대기 중");
                 do
                 {
@@ -441,7 +441,7 @@ namespace ImapIdle
                     Thread.Sleep(1000);
                 } while (true);
                 richTextBox.AppendText("\n예약 파트너 센터 로그인 완료!");
-                chromeDriver.Navigate().GoToUrl("https://colorful-gas-374.notion.site/419f8bbb31e34a3a8e5bb07aee5a69cc");
+                chromeDriver.Navigate().GoToUrl("https://partner.booking.naver.com/bizes/192655/booking-list-view");
 
 
             }
@@ -456,15 +456,18 @@ namespace ImapIdle
         {
             chromeDriver.Navigate().GoToUrl($"https://partner.booking.naver.com/bizes/192655/booking-list-view/bookings/{naverReservationNumber}");
             Thread.Sleep(3000);
+            // 개인정보 = 예약자, 전화번호, 예약번호, 예약유형, 이메일
+            var 개인정보 = chromeDriver.FindElement(By.XPath(@"/html/body/div/div/div[2]/div[2]/div/div[3]/div[2]/div/div[2]/div/div/div/div[1]/div/div[2]")).Text.Trim();
+            var 예약자번호 = chromeDriver.FindElement(By.XPath(@"/html/body/div/div/div[2]/div[2]/div/div[3]/div[2]/div/div[2]/div/div/div/div[1]/div/div[1]/div/span[2]/div/a")).GetAttribute("data-tst_click_link");
+            var 예약내역 = chromeDriver.FindElement(By.XPath(@"/html/body/div/div/div[2]/div[2]/div/div[3]/div[2]/div/div[2]/div/div/div/div[2]/div[2]")).Text.Trim();
+            // 결제/환불정보
+            var 결제정보 = chromeDriver.FindElement(By.XPath(@"/html/body/div/div/div[2]/div[2]/div/div[3]/div[2]/div/div[2]/div/div/div/div[3]/ul")).Text.Trim();
+            var 툴팁 = chromeDriver.FindElement(By.XPath(@"/html/body/div/div/div[2]/div[2]/div/div[3]/div[2]/div/div[2]/div/div/div/div[3]/div[2]/div/div/div[2]")).Text.Trim();
 
-            var 예약자번호 = chromeDriver.FindElementByXPath(@"/html/body/div/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div[1]/div[1]/div/div[1]/div/span[2]/div/a").GetAttribute("data-tst_click_link").Trim();
-            var 개인정보 = chromeDriver.FindElementByXPath(@"/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div[1]/div[1]").Text.Trim();
-            var 예약내역 = chromeDriver.FindElementByXPath(@"/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div[1]/div[2]").Text.Trim();
-            var 결제정보 = chromeDriver.FindElementByXPath(@"/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]").Text.Trim();
-            var 툴팁 = chromeDriver.FindElementByXPath(@"/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div[2]/div/div[2]/div/div/div[1]/div[3]/div[2]/div/div/div[2]").Text.Trim();
+            // 아래 부분을 재작성 해야 함. 
             var 옵션리스트 = 툴팁.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries).ToList().Select(item => "옵션 : " + item.Trim());
             var 옵션 = string.Join(Environment.NewLine, 옵션리스트);
-            var message = nameof(예약자번호) + " " + 예약자번호 + Environment.NewLine
+            var message = "예약자번호 " + 예약자번호 + Environment.NewLine
                         + 개인정보 + Environment.NewLine
                         + 예약내역 + Environment.NewLine
                         + 결제정보 + Environment.NewLine

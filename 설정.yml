@@ -5,7 +5,7 @@ ChromeProfileFolder : "ChromeProfileFolder"
 지메일ImapPort : 993
 지메일Host : "imap.gmail.com"
 지메일Username : "moire478.bot@gmail.com"
-지메일Password : "moire1779!"
+지메일Password : "moire8824!"
 
 # 네이버
 네이버Username : "moire478_bot"
@@ -28,7 +28,7 @@ ChromeProfileFolder : "ChromeProfileFolder"
 
 
 # 떠나요
-떠나요기능사용여부 : false
+떠나요기능사용여부 : true
 떠나요Username : "hs빌"
 떠나요Password : "moire8824!"
 떠나요AuthLogin : "false"
